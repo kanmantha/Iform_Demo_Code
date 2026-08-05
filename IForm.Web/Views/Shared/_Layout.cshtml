@@ -1,0 +1,326 @@
+﻿<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>@(ViewData["Title"] is null ? "IFORM" : $"{ViewData["Title"]} - IFORM")</title>
+    <link rel="stylesheet" href="~/css/site.css" asp-append-version="true" />
+    <link rel="stylesheet" href="~/IForm.Web.styles.css" asp-append-version="true" />
+</head>
+<body>
+    <div class="app-shell">
+        <aside class="sidebar" id="sidebar">
+            <div class="sidebar-brand">
+                <div class="brand-logo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path>
+                        <path d="M9 12l2 2 4-4"></path>
+                    </svg>
+                </div>
+                <div class="brand-text">
+                    <strong>IFORM</strong>
+                    <span>Safety &amp; Incident</span>
+                </div>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-section-label">Main</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "dashboard" ? "active" : "")"
+                   asp-controller="Dashboard" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect>
+                        <rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect>
+                    </svg>
+                    <span>Dashboard</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "tickets" ? "active" : "")"
+                   asp-controller="Tickets" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+                        <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+                        <path d="M9 12h6"></path><path d="M9 16h6"></path>
+                    </svg>
+                    <span>All Tickets</span>
+                    <span class="nav-badge" id="navTicketCount"></span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "board" ? "active" : "")"
+                   asp-controller="Tickets" asp-action="Board">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                        <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                        <rect x="14" y="14" width="7" height="7" rx="1"></rect>
+                    </svg>
+                    <span>Ticket Board</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "create" ? "active" : "")"
+                   asp-controller="Tickets" asp-action="Create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <span>New Ticket</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "incidents" ? "active" : "")"
+                   asp-controller="Incidents" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                        <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                    </svg>
+                    <span>Incidents</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "actions" ? "active" : "")"
+                   asp-controller="Actions" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                    </svg>
+                    <span>Action Tracker</span>
+                </a>
+
+                <div class="nav-section-label">Site Queries</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "sitequeries" ? "active" : "")"
+                   asp-controller="SiteQueries" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                        <path d="M8 11h6"></path><path d="M11 8v6"></path>
+                    </svg>
+                    <span>Site Queries</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "sitequery-create" ? "active" : "")"
+                   asp-controller="SiteQueries" asp-action="Create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <span>Report Issue</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "products" ? "active" : "")"
+                   asp-controller="Products" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8l-9-5-9 5 9 5 9-5v8"></path><path d="M3 8v8l9 5 9-5V8"></path>
+                    </svg>
+                    <span>Product Lookup</span>
+                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "query-dashboard" ? "active" : "")"
+                       asp-controller="SiteQueries" asp-action="Dashboard">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20V10"></path><path d="M18 20V4"></path><path d="M6 20v-4"></path>
+                        </svg>
+                        <span>Query Dashboard</span>
+                    </a>
+                }
+
+                <div class="nav-section-label">Design</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "eot" ? "active" : "")"
+                   asp-controller="Eot" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>EOT Tracker</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "eot-create" ? "active" : "")"
+                   asp-controller="Eot" asp-action="Create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <span>New EOT</span>
+                </a>
+
+                <div class="nav-section-label">Production</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "dispatch" ? "active" : "")"
+                   asp-controller="Dispatch" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21 8l-9-5-9 5 9 5 9-5v8"></path><path d="M3 8v8l9 5 9-5V8"></path>
+                    </svg>
+                    <span>Dispatch Tracker</span>
+                </a>
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "dispatch-create" ? "active" : "")"
+                       asp-controller="Dispatch" asp-action="Create">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                        </svg>
+                        <span>New Entry</span>
+                    </a>
+                }
+
+                <div class="nav-section-label">Quality</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "mtc" ? "active" : "")"
+                   asp-controller="MaterialCertificates" asp-action="Index">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <path d="M9 13h6"></path><path d="M9 17h6"></path>
+                    </svg>
+                    <span>Mill Test Certificates</span>
+                </a>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "mtc-create" ? "active" : "")"
+                   asp-controller="MaterialCertificates" asp-action="Create">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path>
+                    </svg>
+                    <span>New Certificate</span>
+                </a>
+
+                @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                {
+                    <div class="nav-section-label">Administration</div>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "sites" ? "active" : "")"
+                       asp-controller="Sites" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M3 9l9-7 9 7v11a2 2 0 01-2 2H5a2 2 0 01-2-2z"></path>
+                            <polyline points="9 22 9 12 15 12 15 22"></polyline>
+                        </svg>
+                        <span>Sites</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "organization" ? "active" : "")"
+                       asp-controller="Organization" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <rect x="3" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="14" y="3" width="7" height="7" rx="1"></rect>
+                            <rect x="3" y="14" width="7" height="7" rx="1"></rect>
+                            <path d="M14 18h7M17.5 15.5v7"></path>
+                        </svg>
+                        <span>Organization</span>
+                    </a>
+                }
+                @if (User.IsInRole("Admin"))
+                {
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "users" ? "active" : "")"
+                       asp-controller="Users" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                            <circle cx="9" cy="7" r="4"></circle>
+                            <path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path>
+                        </svg>
+                        <span>Users</span>
+                    </a>
+                }
+            </nav>
+
+            <div class="sidebar-footer">
+                @if (User.Identity?.IsAuthenticated == true)
+                {
+                    <div class="sidebar-user">
+                        <div class="avatar avatar-sm">@UserInitials</div>
+                        <div class="sidebar-user-info">
+                            <strong>@UserDisplayName</strong>
+                            <span>@UserRole</span>
+                        </div>
+                        <form asp-controller="Account" asp-action="Logout" method="post">
+                            <button type="submit" class="icon-btn" title="Sign out">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M9 21H5a2 2 0 01-2-2V5a2 2 0 012-2h4"></path>
+                                    <path d="M16 17l5-5-5-5"></path><path d="M21 12H9"></path>
+                                </svg>
+                            </button>
+                        </form>
+                    </div>
+                }
+            </div>
+        </aside>
+
+        <div class="main-area">
+            <header class="topbar">
+                <button class="icon-btn sidebar-toggle" id="sidebarToggle" aria-label="Toggle sidebar">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="3" y1="6" x2="21" y2="6"></line><line x1="3" y1="12" x2="21" y2="12"></line><line x1="3" y1="18" x2="21" y2="18"></line>
+                    </svg>
+                </button>
+
+                <div class="topbar-title">
+                    <h1>@ViewData["PageTitle"]</h1>
+                    <p class="topbar-subtitle">@ViewData["PageSubtitle"]</p>
+                </div>
+
+                <div class="topbar-actions">
+                    @if (User.Identity?.IsAuthenticated == true)
+                    {
+                        <a class="icon-btn notification-btn" asp-controller="Notifications" asp-action="Index" title="Notifications">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <path d="M18 8A6 6 0 006 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+                                <path d="M13.73 21a2 2 0 01-3.46 0"></path>
+                            </svg>
+                            <span class="nav-badge notification-badge" id="navNotificationCount"></span>
+                        </a>
+                        <a class="btn btn-primary btn-sm" asp-controller="Tickets" asp-action="Create">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                            </svg>
+                            Report Ticket
+                        </a>
+                        <div class="user-menu">
+                            <a class="user-menu-trigger" asp-controller="Account" asp-action="Profile">
+                                <div class="avatar">@UserInitials</div>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <a class="btn btn-primary btn-sm" asp-controller="Account" asp-action="Login">Sign in</a>
+                    }
+                </div>
+            </header>
+
+            <main class="content">
+                @if (TempData["Success"] is string success)
+                {
+                    <div class="alert alert-success" role="alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path>
+                        </svg>
+                        @success
+                        <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                }
+                @if (TempData["Error"] is string error)
+                {
+                    <div class="alert alert-error" role="alert">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+                        </svg>
+                        @error
+                        <button type="button" class="alert-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>
+                }
+
+                @RenderBody()
+            </main>
+
+            <footer class="app-footer">
+                &copy; @DateTime.UtcNow.Year IFORM &middot; Safety &amp; Incident Ticket Management
+            </footer>
+        </div>
+    </div>
+
+    <script src="~/js/site.js" asp-append-version="true"></script>
+    @await RenderSectionAsync("Scripts", required: false)
+</body>
+</html>
+
+@functions {
+    private string UserInitials
+    {
+        get
+        {
+            var name = User.FindFirst("fullName")?.Value ?? User.Identity?.Name ?? "IF";
+            var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+            var initials = parts.Length >= 2
+                ? $"{parts[0][0]}{parts[^1][0]}"
+                : name.Length >= 2 ? name[..2] : name;
+            return initials.ToUpperInvariant();
+        }
+    }
+
+    private string UserDisplayName => User.FindFirst("fullName")?.Value ?? User.Identity?.Name ?? "";
+
+    private string UserRole
+    {
+        get
+        {
+            var claims = User.Claims.Where(c => c.Type.EndsWith("role", StringComparison.OrdinalIgnoreCase)).Select(c => c.Value).ToList();
+            return claims.Count > 0 ? string.Join(", ", claims) : "Member";
+        }
+    }
+}

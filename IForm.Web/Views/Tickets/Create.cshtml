@@ -1,0 +1,93 @@
+@model IForm.Web.ViewModels.TicketFormViewModel
+@{
+    ViewData["Title"] = "Report Ticket";
+    ViewData["PageTitle"] = "Report a New Ticket";
+    ViewData["PageSubtitle"] = "Report an incident, near miss, hazard or unsafe condition";
+    ViewData["ActiveMenu"] = "create";
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card">
+        <div class="card-header"><h2>Details</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="Title">Title</label>
+                <input asp-for="Title" class="form-control" autofocus placeholder="Short summary of what happened" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control" placeholder="Describe what happened, who was involved, and any immediate actions taken"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Category">Category</label>
+                    <select asp-for="Category" asp-items="Model.CategoryOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Priority">Priority</label>
+                    <select asp-for="Priority" asp-items="Model.PriorityOptions" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Location">Location</label>
+                    <input asp-for="Location" class="form-control" placeholder="e.g. Loading Bay 3, Zone B" />
+                    <span asp-validation-for="Location" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SiteId">Site</label>
+                    <select asp-for="SiteId" class="form-control">
+                        <option value="">Select site</option>
+                        @foreach (var site in Model.Sites)
+                        {
+                            <option value="@site.Value">@site.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="DueDate">Due date</label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Status">Status</label>
+                        <select asp-for="Status" asp-items="Model.StatusOptions" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AssignedToId">Assign to</label>
+                        <select asp-for="AssignedToId" class="form-control">
+                            <option value="">Unassigned</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Value">@user.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Submit ticket</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

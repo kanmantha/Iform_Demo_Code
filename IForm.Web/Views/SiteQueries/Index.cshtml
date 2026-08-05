@@ -1,0 +1,153 @@
+@model IForm.Web.ViewModels.SiteQueryListViewModel
+@{
+    ViewData["Title"] = "Site Queries";
+    ViewData["PageTitle"] = "Site Query & Defect Tracking";
+    ViewData["PageSubtitle"] = $"{Model.TotalCount} quer{(Model.TotalCount == 1 ? "y" : "ies")} found";
+    ViewData["ActiveMenu"] = "sitequeries";
+}
+
+@functions {
+    string BuildUrl(string? sortBy = null, int? page = null, bool resetPage = false)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"search={Uri.EscapeDataString(Model.Search)}");
+        if (!string.IsNullOrWhiteSpace(Model.Project)) query.Add($"project={Uri.EscapeDataString(Model.Project)}");
+        if (Model.Category.HasValue) query.Add($"category={Model.Category}");
+        if (Model.Status.HasValue) query.Add($"status={Model.Status}");
+        if (Model.Escalated) query.Add("escalated=true");
+        query.Add($"page={(page ?? (resetPage ? 1 : Model.Page))}");
+        return "?" + string.Join("&", query);
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Find a query</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Report issue
+        </a>
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 260px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search IPO, project, keyword..." />
+            </div>
+            <div class="filter-item">
+                <select name="project" class="form-control">
+                    <option value="">All projects</option>
+                    @foreach (var project in Model.ProjectOptions)
+                    {
+                        <option value="@project" selected="@(project == Model.Project)">@project</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="category" class="form-control">
+                    <option value="">All issue types</option>
+                    @foreach (var item in Model.CategoryOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    @foreach (var item in Model.StatusOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="check-item filter-check">
+                    <input type="checkbox" name="escalated" value="true" checked="@(Model.Escalated)" />
+                    <span>Escalated (@(UiClasses.EscalationThresholdDays)+ days)</span>
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            @if (Model.Search is not null || Model.Project is not null || Model.Category.HasValue || Model.Status.HasValue || Model.Escalated)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Query</th>
+                    <th>IPO</th>
+                    <th>Project</th>
+                    <th>Issue Type</th>
+                    <th>Status</th>
+                    <th>Qty</th>
+                    <th>Delay</th>
+                    <th>Raised By</th>
+                    <th>Raised</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.SiteQueries.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                No queries match your filters.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Report a new issue</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var query in Model.SiteQueries)
+                {
+                    <tr>
+                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@query.Id">@query.QueryNumber</a></td>
+                        <td>@query.IpoNumber</td>
+                        <td class="ticket-title"><a asp-action="Details" asp-route-id="@query.Id">@query.Project</a></td>
+                        <td><span class="badge @UiClasses.QueryCategory(query.Category)">@query.Category</span></td>
+                        <td>
+                            <span class="badge @UiClasses.QueryStatus(query.Status)">@query.Status</span>
+                            @if (UiClasses.IsEscalated(query))
+                            {
+                                <span class="badge badge-priority-critical" title="Open beyond the escalation threshold">Escalated</span>
+                            }
+                        </td>
+                        <td class="text-sm">@query.QuantityNos nos / @query.QuantitySqm sqm</td>
+                        <td><span class="badge @UiClasses.DelayBadge(query.DelayDays)">@query.DelayDays days</span></td>
+                        <td>@(query.RaisedBy?.FullName ?? "—")</td>
+                        <td class="text-muted text-sm">@query.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination">
+            <div class="page-info">
+                Page @Model.Page of @Model.TotalPages &middot; @Model.TotalCount quer@(Model.TotalCount == 1 ? "y" : "ies")
+            </div>
+            <div class="pagination-controls">
+                <a class="page-btn @(Model.Page <= 1 ? "disabled" : "")" href="@BuildUrl(page: Model.Page - 1)">&laquo; Prev</a>
+                @{
+                    var start = Math.Max(1, Model.Page - 2);
+                    var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                }
+                @for (var p = start; p <= end; p++)
+                {
+                    <a class="page-btn @(p == Model.Page ? "active" : "")" href="@BuildUrl(page: p)">@p</a>
+                }
+                <a class="page-btn @(Model.Page >= Model.TotalPages ? "disabled" : "")" href="@BuildUrl(page: Model.Page + 1)">Next &raquo;</a>
+            </div>
+        </div>
+    }
+</div>

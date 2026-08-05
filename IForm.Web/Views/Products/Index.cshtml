@@ -1,0 +1,107 @@
+@model IForm.Web.ViewModels.ProductListViewModel
+@{
+    ViewData["Title"] = "Product Lookup";
+    ViewData["PageTitle"] = "Product Code Lookup";
+    ViewData["PageSubtitle"] = $"{Model.Products.Count} product{(Model.Products.Count == 1 ? "" : "s")} in the catalogue";
+    ViewData["ActiveMenu"] = "products";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Identify before you report</h2>
+        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+        {
+            <a class="btn btn-primary btn-sm" asp-action="Create">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+                </svg>
+                Add product
+            </a>
+        }
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 260px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search code, name, family, material, specification..." />
+            </div>
+            <div class="filter-item">
+                <select name="family" class="form-control">
+                    <option value="">All families</option>
+                    @foreach (var family in Model.FamilyOptions)
+                    {
+                        <option value="@family" selected="@(family == Model.Family)">@family</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Search</button>
+            @if (Model.Search is not null || Model.Family is not null)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Family</th>
+                    <th>Specification</th>
+                    <th>Material</th>
+                    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                    {
+                        <th>Status</th>
+                        <th></th>
+                    }
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Products.Count == 0)
+                {
+                    <tr>
+                        <td colspan="@(User.IsInRole("Admin") || User.IsInRole("Manager") ? 7 : 5)">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                No products match your search.
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var product in Model.Products)
+                {
+                    <tr>
+                        <td><span class="badge badge-status-progress">@product.ProductCode</span></td>
+                        <td class="ticket-title">@product.Name</td>
+                        <td class="text-sm">@(product.Family ?? "—")</td>
+                        <td class="text-sm">@(product.Specification ?? "—")</td>
+                        <td class="text-sm">@(product.Material ?? "—")</td>
+                        @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+                        {
+                            <td>
+                                @if (product.IsActive)
+                                {
+                                    <span class="badge badge-status-resolved">Active</span>
+                                }
+                                else
+                                {
+                                    <span class="badge badge-status-closed">Inactive</span>
+                                }
+                            </td>
+                            <td>
+                                <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@product.Id">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@product.Id" method="post" class="d-inline"
+                                      onsubmit="return confirm('Remove product @product.ProductCode from the catalogue?');">
+                                    <button type="submit" class="btn btn-sm btn-danger-outline">Delete</button>
+                                </form>
+                            </td>
+                        }
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.EotFormViewModel
+@{
+    ViewData["Title"] = "New EOT";
+    ViewData["PageTitle"] = "Initiate an EOT";
+    ViewData["PageSubtitle"] = "Record a change identified after Shell Plan Approval";
+    ViewData["ActiveMenu"] = "eot-create";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

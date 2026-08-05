@@ -1,0 +1,410 @@
+@model IForm.Web.ViewModels.DashboardViewModel
+@{
+    ViewData["Title"] = "Dashboard";
+    ViewData["PageTitle"] = "Ticket Dashboard";
+    ViewData["PageSubtitle"] = "Overview of safety and incident reporting";
+    ViewData["ActiveMenu"] = "dashboard";
+}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon indigo">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+                <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.TotalTickets</div>
+            <div class="stat-label">Total Tickets</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.OpenTickets</div>
+            <div class="stat-label">New &amp; Open</div>
+            <div class="stat-sub">Needs attention</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.InProgressTickets</div>
+            <div class="stat-label">In Progress</div>
+            <div class="stat-sub">Being worked on</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.CriticalTickets</div>
+            <div class="stat-label">Critical Priority</div>
+            <div class="stat-sub">High risk open</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.ResolvedTickets</div>
+            <div class="stat-label">Resolved</div>
+            <div class="stat-sub">@Model.ResolvedRate% resolved rate</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon purple">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                <circle cx="9" cy="7" r="4"></circle>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.MyAssignedTickets</div>
+            <div class="stat-label">Assigned to Me</div>
+            <div class="stat-sub">Active workload</div>
+        </div>
+    </div>
+</div>
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.TotalIncidents</div>
+            <div class="stat-label">Total Incidents</div>
+            <div class="stat-sub">@Model.OpenIncidents open</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><line x1="9" y1="9" x2="9.01" y2="9"></line><line x1="15" y1="9" x2="15.01" y2="9"></line>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.CriticalIncidents</div>
+            <div class="stat-label">Critical Incidents</div>
+            <div class="stat-sub">High risk open</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.OpenActions</div>
+            <div class="stat-label">Open Actions</div>
+            <div class="stat-sub">@Model.CompletedActions completed</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="6" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.OverdueActions</div>
+            <div class="stat-label">Overdue Actions</div>
+            <div class="stat-sub">Past due date</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+                <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+                <path d="M9 12h6"></path><path d="M9 16h6"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.MyOpenActions</div>
+            <div class="stat-label">My Open Actions</div>
+            <div class="stat-sub">Assigned to me</div>
+        </div>
+    </div>
+
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.CompletedActions</div>
+            <div class="stat-label">Actions Completed</div>
+            <div class="stat-sub">All time</div>
+        </div>
+    </div>
+</div>
+
+<div class="charts-grid">
+    <div class="card">
+        <div class="card-header">
+            <h2>Reports over last 14 days</h2>
+            <span class="text-muted text-sm">@Model.TotalTickets total</span>
+        </div>
+        <div class="card-body">
+            <div class="chart-box"><canvas id="trendChart"></canvas></div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header">
+            <h2>Tickets by status</h2>
+        </div>
+        <div class="card-body">
+            <div class="chart-box-sm"><canvas id="statusChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="charts-grid-3">
+    <div class="card">
+        <div class="card-header"><h2>By priority</h2></div>
+        <div class="card-body">
+            <div class="chart-box-sm"><canvas id="priorityChart"></canvas></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h2>By category</h2></div>
+        <div class="card-body">
+            <div class="chart-box-sm"><canvas id="categoryChart"></canvas></div>
+        </div>
+    </div>
+    <div class="card">
+        <div class="card-header"><h2>By department</h2></div>
+        <div class="card-body">
+            <div class="chart-box-sm"><canvas id="deptChart"></canvas></div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div class="card" style="flex: 1.6;">
+        <div class="card-header">
+            <h2>Recent tickets</h2>
+            <div class="card-actions">
+                <a class="btn btn-sm btn-outline" asp-controller="Tickets" asp-action="Board">Board view</a>
+                <a class="btn btn-sm btn-outline" asp-controller="Tickets" asp-action="Index">View all</a>
+            </div>
+        </div>
+        <div class="card-body flush">
+            <div class="table-wrap">
+                <table class="table">
+                    <thead>
+                        <tr>
+                            <th>Ticket</th>
+                            <th>Title</th>
+                            <th>Status</th>
+                            <th>Priority</th>
+                            <th>Reported</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @if (Model.RecentTickets.Count == 0)
+                        {
+                            <tr><td colspan="5" class="empty-state">No tickets yet.</td></tr>
+                        }
+                        @foreach (var ticket in Model.RecentTickets)
+                        {
+                            <tr>
+                                <td>
+                                    <a class="ticket-id" asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id">@ticket.TicketNumber</a>
+                                </td>
+                                <td class="ticket-title">
+                                    <a asp-controller="Tickets" asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
+                                </td>
+                                <td><span class="badge @UiClasses.Status(ticket.Status)">@ticket.Status</span></td>
+                                <td><span class="badge @UiClasses.Priority(ticket.Priority)">@ticket.Priority</span></td>
+                                <td class="text-muted text-sm">@ticket.CreatedAt.ToLocalTime().ToString("MMM dd")</td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <div class="card" style="flex: 1;">
+        <div class="card-header"><h2>Recent activity</h2></div>
+        <div class="activity-list">
+            @if (Model.RecentActivity.Count == 0)
+            {
+                <div class="empty-state">No activity yet.</div>
+            }
+            @foreach (var log in Model.RecentActivity)
+            {
+                <div class="activity-item">
+                    <div class="activity-dot"></div>
+                    <div class="activity-body">
+                        <div><strong>@log.UserName</strong> @log.Details</div>
+                        <div class="activity-time">@log.CreatedAt.ToLocalTime().ToString("MMM dd, HH:mm")</div>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script src="~/lib/chartjs/chart.umd.min.js"></script>
+    <script>
+        (function () {
+            const colors = {
+                status: {
+                    New: '#3b82f6', Open: '#8b5cf6', InProgress: '#f59e0b',
+                    Pending: '#d946ef', Resolved: '#10b981', Closed: '#94a3b8'
+                },
+                priority: { Low: '#10b981', Medium: '#f59e0b', High: '#f97316', Critical: '#ef4444' },
+                palette: ['#6366f1', '#8b5cf6', '#06b6d4', '#10b981', '#f59e0b', '#f97316', '#ef4444', '#ec4899', '#64748b']
+            };
+
+            Chart.defaults.font.family = getComputedStyle(document.body).fontFamily;
+            Chart.defaults.color = '#64748b';
+
+            // Trend line
+            const trend = @Html.Raw(Json.Serialize(Model.TicketsPerDay));
+            new Chart(document.getElementById('trendChart'), {
+                type: 'line',
+                data: {
+                    labels: trend.map(d => d.Day),
+                    datasets: [{
+                        label: 'Tickets reported',
+                        data: trend.map(d => d.Created),
+                        borderColor: '#4f46e5',
+                        backgroundColor: 'rgba(79,70,229,0.10)',
+                        fill: true,
+                        tension: 0.35,
+                        pointRadius: 4,
+                        pointBackgroundColor: '#4f46e5'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            // Status doughnut
+            const statusData = @Html.Raw(Json.Serialize(Model.TicketsByStatus));
+            new Chart(document.getElementById('statusChart'), {
+                type: 'doughnut',
+                data: {
+                    labels: Object.keys(statusData),
+                    datasets: [{
+                        data: Object.values(statusData),
+                        backgroundColor: Object.keys(statusData).map(k => colors.status[k] || '#94a3b8'),
+                        borderWidth: 2,
+                        borderColor: '#ffffff'
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    cutout: '62%',
+                    plugins: { legend: { position: 'bottom' } }
+                }
+            });
+
+            // Priority horizontal bar
+            const priorityData = @Html.Raw(Json.Serialize(Model.TicketsByPriority));
+            new Chart(document.getElementById('priorityChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(priorityData),
+                    datasets: [{
+                        data: Object.values(priorityData),
+                        backgroundColor: Object.keys(priorityData).map(k => colors.priority[k] || '#94a3b8'),
+                        borderRadius: 6,
+                        maxBarThickness: 36
+                    }]
+                },
+                options: {
+                    indexAxis: 'y',
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { x: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            // Category bar
+            const categoryData = @Html.Raw(Json.Serialize(Model.TicketsByCategory));
+            new Chart(document.getElementById('categoryChart'), {
+                type: 'bar',
+                data: {
+                    labels: Object.keys(categoryData),
+                    datasets: [{
+                        data: Object.values(categoryData),
+                        backgroundColor: colors.palette.slice(0, Object.keys(categoryData).length),
+                        borderRadius: 6,
+                        maxBarThickness: 34
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+
+            // Department bar
+            const deptData = @Html.Raw(Json.Serialize(Model.TicketsByDepartment));
+            new Chart(document.getElementById('deptChart'), {
+                type: 'bar',
+                data: {
+                    labels: deptData.map(d => d.Department),
+                    datasets: [{
+                        data: deptData.map(d => d.Count),
+                        backgroundColor: '#06b6d4',
+                        borderRadius: 6,
+                        maxBarThickness: 34
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
+                    plugins: { legend: { display: false } },
+                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
+                }
+            });
+        })();
+    </script>
+}

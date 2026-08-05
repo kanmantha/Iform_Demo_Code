@@ -1,0 +1,243 @@
+@model IForm.Web.ViewModels.TicketDetailViewModel
+@{
+    var ticket = Model.Ticket;
+    ViewData["Title"] = ticket.TicketNumber;
+    ViewData["PageTitle"] = ticket.TicketNumber;
+    ViewData["PageSubtitle"] = ticket.Title;
+    ViewData["ActiveMenu"] = "tickets";
+}
+
+@functions {
+    static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[^1][0]}" : name[..Math.Min(2, name.Length)];
+    }
+}
+
+<div class="detail-header">
+    <div class="detail-title">
+        <h1>@ticket.Title</h1>
+        <span class="badge @UiClasses.Status(ticket.Status)">@ticket.Status</span>
+        <span class="badge @UiClasses.Priority(ticket.Priority)">@ticket.Priority</span>
+        <span class="badge @UiClasses.Category(ticket.Category)">@ticket.Category</span>
+    </div>
+    <div class="mt-2">
+        <a class="btn btn-sm btn-outline" asp-action="Index">&larr; Back to tickets</a>
+        <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@ticket.Id">Edit</a>
+    </div>
+</div>
+
+<div class="row">
+    <div style="flex: 1.6;">
+        <div class="card mb-2">
+            <div class="card-header">
+                <h2>Details</h2>
+                <span class="text-muted text-sm">Created @ticket.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value"><span class="badge @UiClasses.Status(ticket.Status)">@ticket.Status</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Priority</div>
+                        <div class="meta-value"><span class="badge @UiClasses.Priority(ticket.Priority)">@ticket.Priority</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Category</div>
+                        <div class="meta-value"><span class="badge @UiClasses.Category(ticket.Category)">@ticket.Category</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value">@(ticket.Location ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Site</div>
+                        <div class="meta-value">@(ticket.Site?.Name ?? "—")</div>
+                    </div>
+                </div>
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Reported by</div>
+                        <div class="meta-value">@(ticket.ReportedBy?.FullName ?? "Unknown") (@(ticket.ReportedBy?.Department ?? "—"))</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Assigned to</div>
+                        <div class="meta-value">@(ticket.AssignedTo?.FullName ?? "Unassigned")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Due date</div>
+                        <div class="meta-value">@(ticket.DueDate?.ToLocalTime().ToString("MMM dd, yyyy") ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Last updated</div>
+                        <div class="meta-value">@(ticket.UpdatedAt?.ToLocalTime().ToString("MMM dd, yyyy HH:mm") ?? "—")</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Description</div>
+                <div class="desc-box">@ticket.Description</div>
+
+                @if (!string.IsNullOrWhiteSpace(ticket.ResolutionNotes))
+                {
+                    <div class="section-title mt-3">Resolution notes</div>
+                    <div class="desc-box" style="background: #ecfdf5; border-color: #a7f3d0;">@ticket.ResolutionNotes</div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Comments (@ticket.Comments.Count)</h2></div>
+            <div class="card-body">
+                @if (ticket.Comments.Count == 0)
+                {
+                    <div class="empty-state">No comments yet.</div>
+                }
+                @foreach (var comment in ticket.Comments.OrderBy(c => c.CreatedAt))
+                {
+                    <div class="comment-item">
+                        <div class="avatar avatar-sm">@Initials(comment.User?.FullName)</div>
+                        <div class="comment-body">
+                            <div class="comment-meta">
+                                <span class="comment-author">@(comment.User?.FullName ?? "System")</span>
+                                <span class="comment-time">@comment.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</span>
+                            </div>
+                            <div class="comment-text">@comment.Body</div>
+                        </div>
+                    </div>
+                }
+
+                <form asp-action="AddComment" method="post" class="mt-2">
+                    <input type="hidden" name="id" value="@ticket.Id" />
+                    <div class="form-group mb-1">
+                        <textarea name="newComment" class="form-control" placeholder="Add a comment or update..."></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-primary btn-sm">Add comment</button>
+                </form>
+            </div>
+        </div>
+        <div class="card">
+            <div class="card-header">
+                <h2>Linked actions (@ticket.Actions.Count)</h2>
+                <a class="btn btn-sm btn-outline" asp-controller="Actions" asp-action="Create" asp-route-ticketId="@ticket.Id">
+                    + Add action
+                </a>
+            </div>
+            <div class="card-body flush">
+                @if (ticket.Actions.Count == 0)
+                {
+                    <div class="empty-state">No actions linked to this ticket. <a asp-controller="Actions" asp-action="Create" asp-route-ticketId="@ticket.Id">Create one</a>.</div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Due</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var item in ticket.Actions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a class="ticket-id" asp-controller="Actions" asp-action="Details" asp-route-id="@item.Id">@item.ActionNumber</a>
+                                            <div class="ticket-title"><a asp-controller="Actions" asp-action="Details" asp-route-id="@item.Id">@item.Title</a></div>
+                                        </td>
+                                        <td><span class="badge @UiClasses.ActionPriority(item.Priority)">@item.Priority</span></td>
+                                        <td><span class="badge @UiClasses.ActionStatus(item.Status)">@item.Status</span></td>
+                                        <td>@(item.AssignedTo?.FullName ?? "—")</td>
+                                        <td class="text-muted text-sm">@(item.DueDate?.ToLocalTime().ToString("MMM dd") ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1;">
+        @if (Model.CanAssign)
+        {
+            <div class="card mb-2">
+                <div class="card-header"><h2>Update status</h2></div>
+                <div class="card-body">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <div class="form-group mb-1">
+                            <select name="status" class="form-control">
+                                @foreach (var status in Enum.GetValues<TicketStatus>())
+                                {
+                                    <option value="@status" selected="@(status == ticket.Status)">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-1">
+                            <textarea name="resolutionNotes" class="form-control" placeholder="Resolution notes (optional)">@ticket.ResolutionNotes</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Apply status</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-2">
+                <div class="card-header"><h2>Assignment</h2></div>
+                <div class="card-body">
+                    <form asp-action="Assign" method="post">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <div class="form-group mb-1">
+                            <select name="assignedToId" class="form-control">
+                                <option value="">Unassigned</option>
+                                @foreach (var user in Model.Users)
+                                {
+                                    <option value="@user.Value" selected="@(user.Selected)">@user.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Assign ticket</button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (Model.CanAssign)
+        {
+            <div class="card">
+                <div class="card-header"><h2>Quick actions</h2></div>
+                <div class="card-body d-grid">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <input type="hidden" name="status" value="InProgress" />
+                        <button type="submit" class="btn btn-outline btn-block" @(ticket.Status == TicketStatus.Closed ? "disabled" : "")>
+                            Start / resume work
+                        </button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <input type="hidden" name="status" value="Resolved" />
+                        <button type="submit" class="btn btn-success btn-block" @(ticket.Status == TicketStatus.Closed ? "disabled" : "")>
+                            Mark resolved
+                        </button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post" onsubmit="return confirm('Close this ticket? This cannot be undone.');">
+                        <input type="hidden" name="id" value="@ticket.Id" />
+                        <input type="hidden" name="status" value="Closed" />
+                        <button type="submit" class="btn btn-danger-outline btn-block" @(ticket.Status == TicketStatus.Closed ? "disabled" : "")>
+                            Close ticket
+                        </button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

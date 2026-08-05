@@ -1,0 +1,213 @@
+@model IForm.Web.ViewModels.SiteQueryDashboardViewModel
+@{
+    ViewData["Title"] = "Query Dashboard";
+    ViewData["PageTitle"] = "Manager Dashboard";
+    ViewData["PageSubtitle"] = "Live delivery delays across every project";
+    ViewData["ActiveMenu"] = "query-dashboard";
+}
+
+@section Scripts {
+    <script>
+        (function () {
+            var last = null;
+            document.addEventListener('visibilitychange', function () {
+                if (!document.hidden && last) {
+                    var elapsed = Date.now() - last;
+                    if (elapsed > 15000) window.location.reload();
+                }
+            });
+            setInterval(function () {
+                last = Date.now();
+                window.location.reload();
+            }, 15000);
+        })();
+    </script>
+}
+
+<div class="stats-grid">
+    <div class="stat-card">
+        <div class="stat-icon blue">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><path d="M14 2v6h6"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.TotalQueries</div>
+            <div class="stat-label">Total queries logged</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon green">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M22 11.08V12a10 10 0 11-5.93-9.14"></path><path d="M22 4L12 14.01l-3-3"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.ResolvedQueries</div>
+            <div class="stat-label">Resolved queries</div>
+            <div class="stat-sub">@Model.ResolvedThisMonth resolved this month</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon red">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.OpenQueries</div>
+            <div class="stat-label">Currently open</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.EscalatedQueries</div>
+            <div class="stat-label">Escalated</div>
+            <div class="stat-sub">open @(UiClasses.EscalationThresholdDays)+ days</div>
+        </div>
+    </div>
+    <div class="stat-card">
+        <div class="stat-icon amber">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+            </svg>
+        </div>
+        <div class="stat-meta">
+            <div class="stat-value">@Model.AvgDelayDays.ToString("F0")</div>
+            <div class="stat-label">Avg. delay (days)</div>
+        </div>
+    </div>
+</div>
+
+<div class="row">
+    <div style="flex: 1.6;">
+        <div class="card">
+            <div class="card-header">
+                <h2>Open delays by project</h2>
+                <span class="text-muted text-sm">Ranked by severity - furthest behind first</span>
+            </div>
+            <div class="card-body flush">
+                @if (Model.ProjectDelays.Count == 0)
+                {
+                    <div class="empty-state">No open queries. All projects are on track.</div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Rank</th>
+                                    <th>Project</th>
+                                    <th>Open queries</th>
+                                    <th>Top issue type</th>
+                                    <th>Max delay</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @{
+                                    var rank = 0;
+                                }
+                                @foreach (var item in Model.ProjectDelays)
+                                {
+                                    rank++;
+                                    <tr>
+                                        <td><span class="badge @UiClasses.DelayBadge(item.MaxDelayDays)">#@rank</span></td>
+                                        <td class="ticket-title">@item.Project</td>
+                                        <td>@item.OpenCount</td>
+                                        <td>@(item.TopCategory ?? "—")</td>
+                                        <td><span class="badge @UiClasses.DelayBadge(item.MaxDelayDays)">@item.MaxDelayDays days</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1;">
+        <div class="card mb-2">
+            <div class="card-header"><h2>Breakdown by issue type</h2></div>
+            <div class="card-body">
+                @if (Model.ByCategory.Count == 0)
+                {
+                    <div class="empty-state">No data yet.</div>
+                }
+                else
+                {
+                    @foreach (var item in Model.ByCategory)
+                    {
+                        <div class="meta-item mb-2">
+                            <div class="meta-label">@item.Key</div>
+                            <div class="meta-value">@item.Value quer@(item.Value == 1 ? "y" : "ies")</div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header"><h2>Longest-open queries</h2></div>
+            <div class="card-body flush">
+                @if (Model.OldestOpen.Count == 0)
+                {
+                    <div class="empty-state">No open queries.</div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Query</th>
+                                    <th>Project</th>
+                                    <th>Raised by</th>
+                                    <th>Open</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var query in Model.OldestOpen)
+                                {
+                                    <tr>
+                                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@query.Id">@query.QueryNumber</a></td>
+                                        <td>@query.Project</td>
+                                        <td>@(query.RaisedBy?.FullName ?? "—")</td>
+                                        <td><span class="badge @UiClasses.DelayBadge(query.DelayDays)">@query.DelayDays days</span></td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+
+        <div class="card mt-2">
+            <div class="card-header"><h2>Queries by engineer</h2></div>
+            <div class="card-body">
+                @if (Model.RaisedByStats.Count == 0)
+                {
+                    <div class="empty-state">No open queries.</div>
+                }
+                else
+                {
+                    @foreach (var stat in Model.RaisedByStats)
+                    {
+                        <div class="meta-item mb-2">
+                            <div class="meta-label">@stat.Name</div>
+                            <div class="meta-value">@stat.OpenCount open · <span class="badge @UiClasses.DelayBadge(stat.MaxDelayDays)">@stat.MaxDelayDays days</span></div>
+                        </div>
+                    }
+                }
+            </div>
+        </div>
+    </div>
+</div>

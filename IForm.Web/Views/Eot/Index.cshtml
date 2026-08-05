@@ -1,0 +1,159 @@
+@model IForm.Web.ViewModels.EotListViewModel
+@{
+    ViewData["Title"] = "EOT Tracker";
+    ViewData["PageTitle"] = "EOT Management & Tracking";
+    ViewData["PageSubtitle"] = $"{Model.TotalCount} EOT request{(Model.TotalCount == 1 ? "" : "s")} on record";
+    ViewData["ActiveMenu"] = "eot";
+}
+
+@functions {
+    string BuildUrl(int? page = null, bool resetPage = false)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"search={Uri.EscapeDataString(Model.Search)}");
+        if (Model.Category.HasValue) query.Add($"category={Model.Category}");
+        if (Model.Scenario.HasValue) query.Add($"scenario={Model.Scenario}");
+        if (Model.SubmissionStatus.HasValue) query.Add($"submissionStatus={Model.SubmissionStatus}");
+        if (Model.ClientApproval.HasValue) query.Add($"clientApproval={Model.ClientApproval}");
+        query.Add($"page={(page ?? (resetPage ? 1 : Model.Page))}");
+        return "?" + string.Join("&", query);
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>EOT register</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New EOT
+        </a>
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 240px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search EOT no, project, client..." />
+            </div>
+            <div class="filter-item">
+                <select name="category" class="form-control">
+                    <option value="">All categories</option>
+                    @foreach (var item in Model.CategoryOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="scenario" class="form-control">
+                    <option value="">All scenarios</option>
+                    @foreach (var item in Model.ScenarioOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="submissionStatus" class="form-control">
+                    <option value="">All submission statuses</option>
+                    @foreach (var item in Model.SubmissionStatusOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="clientApproval" class="form-control">
+                    <option value="">All approvals</option>
+                    @foreach (var item in Model.ClientApprovalOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            @if (Model.Search is not null || Model.Category.HasValue || Model.Scenario.HasValue || Model.SubmissionStatus.HasValue || Model.ClientApproval.HasValue)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>EOT No.</th>
+                    <th>Project</th>
+                    <th>Client</th>
+                    <th>Category</th>
+                    <th>Scenario</th>
+                    <th>Delay (days)</th>
+                    <th>Cost escalation</th>
+                    <th>Submission status</th>
+                    <th>Client approval</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.EotRequests.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                No EOT requests match your filters.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Initiate a new EOT</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var eot in Model.EotRequests)
+                {
+                    <tr>
+                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@eot.Id">@eot.EotNumber</a></td>
+                        <td class="ticket-title"><a asp-action="Details" asp-route-id="@eot.Id">@eot.Project</a></td>
+                        <td>@(eot.Client ?? "—")</td>
+                        <td><span class="badge @UiClasses.EotCategory(eot.Category)">@eot.Category</span></td>
+                        <td><span class="badge @UiClasses.Scenario(eot.Scenario.GetValueOrDefault())">@(eot.Scenario?.ToString() ?? "—")</span></td>
+                        <td>
+                            @if (eot.DelayDays.HasValue)
+                            {
+                                <span class="badge @UiClasses.DelayBadge(eot.DelayDays.Value)">@eot.DelayDays days</span>
+                            }
+                            else
+                            {
+                                <span class="text-muted text-sm">—</span>
+                            }
+                        </td>
+                        <td>@(eot.CostEscalation ?? "—")</td>
+                        <td><span class="badge @UiClasses.EotSubmissionStatus(eot.SubmissionStatus)">@eot.SubmissionStatus</span></td>
+                        <td><span class="badge @UiClasses.EotClientApproval(eot.ClientApproval)">@eot.ClientApproval</span></td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination">
+            <div class="page-info">
+                Page @Model.Page of @Model.TotalPages &middot; @Model.TotalCount EOT request@(Model.TotalCount == 1 ? "" : "s")
+            </div>
+            <div class="pagination-controls">
+                <a class="page-btn @(Model.Page <= 1 ? "disabled" : "")" href="@BuildUrl(page: Model.Page - 1)">&laquo; Prev</a>
+                @{
+                    var start = Math.Max(1, Model.Page - 2);
+                    var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                }
+                @for (var p = start; p <= end; p++)
+                {
+                    <a class="page-btn @(p == Model.Page ? "active" : "")" href="@BuildUrl(page: p)">@p</a>
+                }
+                <a class="page-btn @(Model.Page >= Model.TotalPages ? "disabled" : "")" href="@BuildUrl(page: Model.Page + 1)">Next &raquo;</a>
+            </div>
+        </div>
+    }
+</div>

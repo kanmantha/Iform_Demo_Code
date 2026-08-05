@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.DispatchFormViewModel
+@{
+    ViewData["Title"] = $"Edit {Model.DispatchNumber}";
+    ViewData["PageTitle"] = $"Edit {Model.DispatchNumber}";
+    ViewData["PageSubtitle"] = "Update dispatch entry details";
+    ViewData["ActiveMenu"] = "dispatch";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

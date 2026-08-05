@@ -1,0 +1,4 @@
+<Solution>
+  <Project Path="IForm.Tests/IForm.Tests.csproj" />
+  <Project Path="IForm.Web/IForm.Web.csproj" />
+</Solution>

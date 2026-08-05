@@ -1,0 +1,42 @@
+@{
+    var unit = (IForm.Web.Models.OrganizationUnit)ViewBag.Unit;
+    var members = (List<IForm.Web.Models.AppUser>)ViewBag.Members;
+    var allUsers = (List<IForm.Web.Models.AppUser>)ViewBag.AllUsers;
+    var memberIds = members.Select(m => m.Id).ToHashSet();
+
+    ViewData["Title"] = $"{unit.Name} Members";
+    ViewData["PageTitle"] = $"Members - {unit.Name}";
+    ViewData["PageSubtitle"] = $"Manage who belongs to {unit.Name}";
+    ViewData["ActiveMenu"] = "organization";
+}
+
+<div class="card" style="max-width: 760px;">
+    <div class="card-header">
+        <h2>Members (@members.Count)</h2>
+        <a class="btn btn-sm btn-outline" asp-action="Index">&larr; Back to departments</a>
+    </div>
+    <div class="card-body">
+        <form asp-action="Members" method="post">
+            <input type="hidden" name="id" value="@unit.Id" />
+            <div class="member-picker">
+                @if (allUsers.Count == 0)
+                {
+                    <div class="empty-state">No users exist yet. Add users from User Management first.</div>
+                }
+                @foreach (var user in allUsers)
+                {
+                    <label class="member-row">
+                        <input type="checkbox" name="memberIds" value="@user.Id" checked="@memberIds.Contains(user.Id)" />
+                        <span class="member-name">@user.FullName</span>
+                        <span class="text-muted text-sm">@user.Email</span>
+                        <span class="text-muted text-sm">@(user.JobTitle ?? "")</span>
+                    </label>
+                }
+            </div>
+            <div class="form-actions mt-2">
+                <button type="submit" class="btn btn-primary">Save members</button>
+                <a class="btn btn-outline" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>

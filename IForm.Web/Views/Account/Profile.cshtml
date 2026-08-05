@@ -1,0 +1,41 @@
+@model IForm.Web.Models.AppUser
+@{
+    ViewData["Title"] = "My Profile";
+    ViewData["PageTitle"] = "My Profile";
+    ViewData["PageSubtitle"] = "Your account details";
+    ViewData["ActiveMenu"] = "";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Profile</h2>
+    </div>
+    <div class="card-body">
+        <div class="row mb-3">
+            <div>
+                <div class="meta-label">Full name</div>
+                <div class="meta-value">@Model.FullName</div>
+            </div>
+            <div>
+                <div class="meta-label">Email</div>
+                <div class="meta-value">@Model.Email</div>
+            </div>
+        </div>
+        <div class="row mb-3">
+            <div>
+                <div class="meta-label">Department</div>
+                <div class="meta-value">@(Model.Department ?? "—")</div>
+            </div>
+            <div>
+                <div class="meta-label">Job title</div>
+                <div class="meta-value">@(Model.JobTitle ?? "—")</div>
+            </div>
+        </div>
+        <div class="row">
+            <div>
+                <div class="meta-label">Member since</div>
+                <div class="meta-value">@Model.CreatedAt.ToLocalTime().ToString("MMMM dd, yyyy")</div>
+            </div>
+        </div>
+    </div>
+</div>

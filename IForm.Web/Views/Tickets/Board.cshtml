@@ -1,0 +1,183 @@
+@model IForm.Web.ViewModels.TicketBoardViewModel
+@{
+    ViewData["Title"] = "Ticket Board";
+    ViewData["PageTitle"] = "Ticket Board";
+    ViewData["PageSubtitle"] = Model.CanMove
+        ? "Drag cards between columns to update their status"
+        : $"{Model.TotalCount} tickets across all statuses";
+    ViewData["ActiveMenu"] = "board";
+}
+
+@functions {
+    static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[^1][0]}" : name[..Math.Min(2, name.Length)];
+    }
+}
+
+<div class="card mb-2">
+    <div class="filter-bar">
+        <form method="get" asp-action="Board">
+            <div class="filter-item" style="flex: 1 1 320px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search ticket number or title..." />
+            </div>
+            <div class="filter-item">
+                <select name="priority" class="form-control">
+                    <option value="">All priorities</option>
+                    @foreach (var p in new[] { "Low", "Medium", "High", "Critical" })
+                    {
+                        <option value="@p" selected="@(Model.Priority?.ToString() == p)">@p</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Filter</button>
+            @if (Model.Search is not null || Model.Priority.HasValue)
+            {
+                <a class="btn btn-outline" asp-action="Board">Clear</a>
+            }
+            <a class="btn btn-outline" asp-action="Index">Table view</a>
+        </form>
+    </div>
+</div>
+
+@Html.AntiForgeryToken()
+
+<div class="board" id="board" data-canmove="@(Model.CanMove ? "true" : "false")">
+    @foreach (var column in Model.Columns)
+    {
+        <div class="board-col" data-status="@column.Status" @(Model.CanMove ? "ondragover=event.preventDefault()" : "")>
+            <div class="board-col-header">
+                <span class="board-col-dot" style="background: @(UiClasses.StatusColor(column.Status));"></span>
+                <span class="board-col-title">@column.Title</span>
+                <span class="board-col-count" data-count>@column.Tickets.Count</span>
+            </div>
+            <div class="board-col-body" data-dropzone>
+                @foreach (var ticket in column.Tickets)
+                {
+                    <div class="board-card @(Model.CanMove ? "draggable" : "")"
+                         data-ticket-id="@ticket.Id"
+                         @(Model.CanMove ? "draggable=true" : "")>
+                        <div class="board-card-top">
+                            <a class="ticket-id" asp-action="Details" asp-route-id="@ticket.Id">@ticket.TicketNumber</a>
+                            <span class="badge @UiClasses.Priority(ticket.Priority)">@ticket.Priority</span>
+                        </div>
+                        <a class="board-card-title" asp-action="Details" asp-route-id="@ticket.Id">@ticket.Title</a>
+                        <div class="board-card-meta">
+                            @if (ticket.AssignedTo is not null)
+                            {
+                                <span class="cell-avatar">
+                                    <div class="avatar avatar-sm" style="background: #0ea5e9;">@Initials(ticket.AssignedTo.FullName)</div>
+                                    <span class="text-sm">@ticket.AssignedTo.FullName</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted text-sm">Unassigned</span>
+                            }
+                            <span class="text-muted text-sm">
+                                @if (ticket.DueDate.HasValue)
+                                {
+                                    @if (ticket.DueDate.Value.ToLocalTime().Date < DateTime.Now.Date && ticket.Status != TicketStatus.Resolved && ticket.Status != TicketStatus.Closed)
+                                    {
+                                        <span class="overdue-dot" title="Overdue">&bull; Overdue</span>
+                                    }
+                                    else
+                                    {
+                                        <span>Due @ticket.DueDate.Value.ToLocalTime().ToString("MMM dd")</span>
+                                    }
+                                }
+                                else
+                                {
+                                    <span>No due date</span>
+                                }
+                            </span>
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+</div>
+
+@section Scripts {
+    <script>
+        (function () {
+            var board = document.getElementById('board');
+            if (!board) return;
+            var canMove = board.dataset.canmove === 'true';
+            if (!canMove) return;
+
+            var token = document.querySelector('input[name="__RequestVerificationToken"]');
+            var dragged = null;
+
+            document.querySelectorAll('.board-card.draggable').forEach(function (card) {
+                card.addEventListener('dragstart', function () {
+                    dragged = card;
+                    card.classList.add('dragging');
+                });
+                card.addEventListener('dragend', function () {
+                    card.classList.remove('dragging');
+                    dragged = null;
+                });
+            });
+
+            var dropZones = document.querySelectorAll('[data-dropzone]');
+            dropZones.forEach(function (zone) {
+                zone.addEventListener('dragover', function (e) {
+                    e.preventDefault();
+                    zone.parentElement.classList.add('drag-over');
+                });
+                zone.addEventListener('dragleave', function () {
+                    zone.parentElement.classList.remove('drag-over');
+                });
+                zone.addEventListener('drop', function (e) {
+                    e.preventDefault();
+                    zone.parentElement.classList.remove('drag-over');
+                    if (!dragged) return;
+
+                    var status = zone.parentElement.dataset.status;
+                    var ticketId = dragged.dataset.ticketId;
+
+                    fetch('/Tickets/Move', {
+                        method: 'POST',
+                        headers: {
+                            'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
+                            'RequestVerificationToken': token ? token.value : ''
+                        },
+                        body: 'id=' + encodeURIComponent(ticketId) + '&status=' + encodeURIComponent(status)
+                    })
+                        .then(function (r) { return r.json(); })
+                        .then(function (data) {
+                            if (!data || !data.ok) return;
+                            zone.appendChild(dragged);
+                            updateCounts();
+                            updateNav(data.count);
+                        })
+                        .catch(function () { });
+                });
+            });
+
+            function updateCounts() {
+                document.querySelectorAll('.board-col').forEach(function (col) {
+                    var count = col.querySelectorAll('.board-card').length;
+                    var badge = col.querySelector('[data-count]');
+                    if (badge) badge.textContent = count;
+                });
+            }
+
+            function updateNav(count) {
+                var navBadge = document.getElementById('navTicketCount');
+                if (navBadge) {
+                    if (count > 0) {
+                        navBadge.textContent = count;
+                        navBadge.style.display = 'inline-flex';
+                    } else {
+                        navBadge.style.display = 'none';
+                    }
+                }
+            }
+        })();
+    </script>
+}

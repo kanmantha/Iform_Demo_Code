@@ -1,0 +1,97 @@
+@model IForm.Web.ViewModels.DispatchFormViewModel
+@{
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+}
+
+<form asp-action="@formAction" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    @if (Model.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Dispatch details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="IpoNumber">IPO number</label>
+                    <input asp-for="IpoNumber" class="form-control" autofocus placeholder="e.g. IPO-561" />
+                    <span asp-validation-for="IpoNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Project">Project</label>
+                    <input asp-for="Project" class="form-control" placeholder="e.g. Golkonda Tattvam" />
+                    <span asp-validation-for="Project" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="SlabTargetDate">Slab target date</label>
+                    <input asp-for="SlabTargetDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SlabCompletedDate">Slab completed date</label>
+                    <input asp-for="SlabCompletedDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SlabDelayDays">Slab delay (days)</label>
+                    <input asp-for="SlabDelayDays" type="number" min="0" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="QuantityNos">Qty (nos)</label>
+                    <input asp-for="QuantityNos" type="number" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="QuantitySqm">Qty (sqm)</label>
+                    <input asp-for="QuantitySqm" type="number" step="0.01" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="CastingDate">Casting date</label>
+                    <input asp-for="CastingDate" type="date" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Dispatch status &amp; delay</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="DispatchStatus">Dispatch status</label>
+                    <select asp-for="DispatchStatus" asp-items="Model.StatusOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DispatchDate">Dispatch date</label>
+                    <input asp-for="DispatchDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="DelayDays">Delay (days)</label>
+                    <input asp-for="DelayDays" type="number" min="0" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Reason">Reason</label>
+                    <select asp-for="Reason" asp-items="Model.ReasonOptions" class="form-control">
+                        <option value="">Select reason</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Remarks">Remarks</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Additional notes"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Create Entry")</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>

@@ -1,0 +1,61 @@
+@model IForm.Web.ViewModels.SiteFormViewModel
+@{
+    ViewData["Title"] = "Edit Site";
+    ViewData["PageTitle"] = "Edit Site";
+    ViewData["PageSubtitle"] = "Update site details";
+    ViewData["ActiveMenu"] = "sites";
+}
+
+<div class="card" style="max-width: 640px;">
+    <div class="card-header"><h2>Site details</h2></div>
+    <div class="card-body">
+        <form asp-action="Edit" method="post">
+            <input type="hidden" asp-for="Id" />
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Code">Code</label>
+                    <input asp-for="Code" class="form-control" autofocus />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Address">Address</label>
+                <input asp-for="Address" class="form-control" />
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="City">City</label>
+                    <input asp-for="City" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Country">Country</label>
+                    <input asp-for="Country" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" asp-for="IsActive" class="form-check-input" /> Active
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Save changes</button>
+                <a class="btn btn-outline" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

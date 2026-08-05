@@ -1,0 +1,79 @@
+@model IForm.Web.ViewModels.ProductFormViewModel
+@{
+    ViewData["Title"] = "Add Product";
+    ViewData["PageTitle"] = "Add Product";
+    ViewData["PageSubtitle"] = "Upload a product code to the central catalogue";
+    ViewData["ActiveMenu"] = "products";
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Product details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ProductCode">Product code</label>
+                    <input asp-for="ProductCode" class="form-control" autofocus placeholder="e.g. DAAA" />
+                    <span asp-validation-for="ProductCode" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. SNAP TIE" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Family">Family</label>
+                    <input asp-for="Family" class="form-control" placeholder="e.g. Tie, Pin, Door Brace" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Material">Material</label>
+                    <input asp-for="Material" class="form-control" placeholder="e.g. Steel, Steel + PVC, Cast-iron" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Specification">Specification</label>
+                    <input asp-for="Specification" class="form-control" placeholder="e.g. Wall thickness (mm), Length" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Dimensions">Dimensions</label>
+                    <input asp-for="Dimensions" class="form-control" placeholder="e.g. 1150X1000X600" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Project">Project</label>
+                    <input asp-for="Project" class="form-control" placeholder="e.g. Hallmark" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Unit">Unit</label>
+                    <input asp-for="Unit" class="form-control" placeholder="e.g. nos / sqm" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsActive">Status</label>
+                <select asp-for="IsActive" class="form-control">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Add product</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

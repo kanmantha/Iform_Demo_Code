@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.EotFormViewModel
+@{
+    ViewData["Title"] = "Edit EOT";
+    ViewData["PageTitle"] = $"Edit {Model.EotNumber}";
+    ViewData["PageSubtitle"] = Model.Project;
+    ViewData["ActiveMenu"] = "eot";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

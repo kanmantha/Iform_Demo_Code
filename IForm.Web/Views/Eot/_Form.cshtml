@@ -1,0 +1,198 @@
+@model IForm.Web.ViewModels.EotFormViewModel
+@{
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+}
+
+<form asp-action="@formAction" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    @if (Model.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>EOT details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Project">Project</label>
+                    <input asp-for="Project" class="form-control" list="eotProjectList" autofocus placeholder="e.g. Hallmark" />
+                    <datalist id="eotProjectList">
+                        @foreach (var project in Model.ProjectOptions)
+                        {
+                            <option value="@project"></option>
+                        }
+                    </datalist>
+                    <span asp-validation-for="Project" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Client">Client</label>
+                    <input asp-for="Client" class="form-control" placeholder="e.g. Hallmark Developers" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Category">EOT category</label>
+                    <select asp-for="Category" asp-items="Model.CategoryOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Scenario">Scenario</label>
+                    <select asp-for="Scenario" asp-items="Model.ScenarioOptions" class="form-control"></select>
+                    <span class="text-muted text-sm">SC-1 Production Completed &middot; SC-2 Partially Completed &middot; SC-3 Not Started</span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ChangeProposedBy">Change proposed by</label>
+                    <select asp-for="ChangeProposedBy" asp-items="Model.ChangeProposedByOptions" class="form-control">
+                        <option value="">Select</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FinancialYear">Financial year</label>
+                    <input asp-for="FinancialYear" class="form-control" placeholder="e.g. 2026-27" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="RevisionNumber">Revision number</label>
+                    <input asp-for="RevisionNumber" type="number" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Reference">Reference</label>
+                    <input asp-for="Reference" class="form-control" placeholder="Drawing revision / client email" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Reason">Reason</label>
+                <textarea asp-for="Reason" class="form-control" placeholder="Brief description of the change"></textarea>
+                <span asp-validation-for="Reason" class="text-danger"></span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Timeline &amp; impact</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="SpaDate">SPA date</label>
+                    <input asp-for="SpaDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="DesignRevisionDate">Design revision date</label>
+                    <input asp-for="DesignRevisionDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EstimatedTimeImpactDays">Estimated time impact (days)</label>
+                    <input asp-for="EstimatedTimeImpactDays" type="number" min="0" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EstimatedCostImpact">Estimated cost impact</label>
+                    <input asp-for="EstimatedCostImpact" type="number" step="0.01" min="0" class="form-control" placeholder="Leave blank for To be Assessed" />
+                    <span class="text-muted text-sm">Finalised with Contracts (Sowmya. K)</span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DelayDays">Delay (days)</label>
+                    <input asp-for="DelayDays" type="number" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="CostEscalation">Cost escalation</label>
+                    <input asp-for="CostEscalation" class="form-control" placeholder="e.g. +12.5%" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Design / scope change analysis</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="OriginalApprovedScope">Original approved scope</label>
+                    <textarea asp-for="OriginalApprovedScope" class="form-control" rows="2" placeholder="Approved scope per drawings"></textarea>
+                </div>
+                <div class="form-group">
+                    <label asp-for="RevisedScope">Revised scope</label>
+                    <textarea asp-for="RevisedScope" class="form-control" rows="2" placeholder="Scope after revision"></textarea>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ScopeAddition">Scope addition (+)</label>
+                    <input asp-for="ScopeAddition" type="number" step="0.01" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="ScopeReduction">Scope reduction (-)</label>
+                    <input asp-for="ScopeReduction" type="number" step="0.01" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label>Net scope variation</label>
+                    <div class="form-control-static">@((Model.ScopeAddition ?? 0) - (Model.ScopeReduction ?? 0)) sqm</div>
+                </div>
+            </div>
+            <span class="text-muted text-sm">All calculations must be supported by approved drawings and revision records for contractual claims.</span>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Required documents</h2></div>
+        <div class="card-body">
+            <div class="check-grid">
+                <label class="check-item">
+                    <input asp-for="HasApprovedDrawings" /> <span>Approved Drawings</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasRevisedDrawings" /> <span>Revised Drawings</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasClientInstructions" /> <span>Client Instructions / Emails</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasDelayAnalysis" /> <span>Delay Analysis Report</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasScopeVariationStatement" /> <span>Scope Variation Statement</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasProgressReport" /> <span>Project Progress Report</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasConsultantCorrespondence" /> <span>Consultant Correspondence</span>
+                </label>
+                <label class="check-item">
+                    <input asp-for="HasSupportingDocuments" /> <span>Supporting Documents</span>
+                </label>
+            </div>
+            <span class="text-muted text-sm">Incomplete submissions shall not be processed.</span>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Status &amp; review</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="SubmissionStatus">Submission status</label>
+                    <select asp-for="SubmissionStatus" asp-items="Model.SubmissionStatusOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ClientApproval">Client approval</label>
+                    <select asp-for="ClientApproval" asp-items="Model.ClientApprovalOptions" class="form-control"></select>
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Remarks">Remarks</label>
+                <textarea asp-for="Remarks" class="form-control" rows="2" placeholder="Fortnightly review notes"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Create EOT")</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>

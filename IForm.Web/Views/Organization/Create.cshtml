@@ -1,0 +1,72 @@
+@model IForm.Web.ViewModels.OrganizationUnitFormViewModel
+@{
+    ViewData["Title"] = "Add Department";
+    ViewData["PageTitle"] = "Add Department";
+    ViewData["PageSubtitle"] = "Create a new department or team";
+    ViewData["ActiveMenu"] = "organization";
+}
+
+<div class="card" style="max-width: 640px;">
+    <div class="card-header"><h2>New department</h2></div>
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Code">Code</label>
+                    <input asp-for="Code" class="form-control" autofocus placeholder="e.g. EHS" />
+                    <span asp-validation-for="Code" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Environment, Health & Safety" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ParentId">Parent department</label>
+                    <select asp-for="ParentId" class="form-control">
+                        <option value="">None</option>
+                        @foreach (var parent in Model.Parents)
+                        {
+                            <option value="@parent.Value">@parent.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManagerId">Manager</label>
+                    <select asp-for="ManagerId" class="form-control">
+                        <option value="">None</option>
+                        @foreach (var manager in Model.Managers)
+                        {
+                            <option value="@manager.Value">@manager.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>
+                    <input type="checkbox" asp-for="IsActive" class="form-check-input" /> Active
+                </label>
+            </div>
+
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary">Create department</button>
+                <a class="btn btn-outline" asp-action="Index">Cancel</a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,107 @@
+@model IForm.Web.ViewModels.SiteQueryFormViewModel
+@{
+    ViewData["Title"] = "Edit Query";
+    ViewData["PageTitle"] = "Edit Site Query";
+    ViewData["PageSubtitle"] = "Update the details of this site query";
+    ViewData["ActiveMenu"] = "sitequeries";
+}
+
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Identify the issue</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="IpoNumber">IPO number</label>
+                    <input asp-for="IpoNumber" class="form-control" autofocus placeholder="e.g. 556" />
+                    <span asp-validation-for="IpoNumber" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Project">Project</label>
+                    <input asp-for="Project" class="form-control" list="projectList" placeholder="e.g. Hallmark" />
+                    <datalist id="projectList">
+                        @foreach (var project in Model.ProjectOptions)
+                        {
+                            <option value="@project"></option>
+                        }
+                    </datalist>
+                    <span asp-validation-for="Project" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Category">Issue type</label>
+                    <select asp-for="Category" asp-items="Model.CategoryOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ProductId">Verified product code</label>
+                    <select asp-for="ProductId" class="form-control">
+                        <option value="">Not verified</option>
+                        @foreach (var group in Model.ProductOptions.GroupBy(o => o.Group?.Name))
+                        {
+                            <optgroup label="@group.Key">
+                                @foreach (var product in group)
+                                {
+                                    <option value="@product.Value" selected="@product.Selected">@product.Text</option>
+                                }
+                            </optgroup>
+                        }
+                    </select>
+                    <span class="text-muted text-sm">Confirm the exact item first via <a asp-controller="Products" asp-action="Index">Product Lookup</a>.</span>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Issue description</label>
+                <textarea asp-for="Description" class="form-control" placeholder="What is missing or defective, and where on site?"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="QuantityNos">Quantity (nos)</label>
+                    <input asp-for="QuantityNos" type="number" step="0.01" min="0" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="QuantitySqm">Quantity (sqm)</label>
+                    <input asp-for="QuantitySqm" type="number" step="0.01" min="0" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Photo">Add photo evidence</label>
+                <input asp-for="Photo" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control" />
+                <span class="text-muted text-sm">Only if you want to attach a new photo (max 5 MB). Existing photos are kept.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Dispatch &amp; slab details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="SlabTargetDate">Slab target casting date</label>
+                    <input asp-for="SlabTargetDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SlabCompletedDate">Slab completed date</label>
+                    <input asp-for="SlabCompletedDate" type="date" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-outline" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

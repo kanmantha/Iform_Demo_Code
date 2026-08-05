@@ -1,0 +1,93 @@
+@model IForm.Web.ViewModels.TicketFormViewModel
+@{
+    ViewData["Title"] = "Edit Ticket";
+    ViewData["PageTitle"] = "Edit Ticket";
+    ViewData["PageSubtitle"] = "Update ticket details";
+    ViewData["ActiveMenu"] = "tickets";
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card">
+        <div class="card-header"><h2>Details</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="Title">Title</label>
+                <input asp-for="Title" class="form-control" autofocus />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Category">Category</label>
+                    <select asp-for="Category" asp-items="Model.CategoryOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Priority">Priority</label>
+                    <select asp-for="Priority" asp-items="Model.PriorityOptions" class="form-control"></select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Location">Location</label>
+                    <input asp-for="Location" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SiteId">Site</label>
+                    <select asp-for="SiteId" class="form-control">
+                        <option value="">Select site</option>
+                        @foreach (var site in Model.Sites)
+                        {
+                            <option value="@site.Value" selected="@(site.Value == Model.SiteId.ToString())">@site.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="DueDate">Due date</label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+            {
+                <div class="form-row">
+                    <div class="form-group">
+                        <label asp-for="Status">Status</label>
+                        <select asp-for="Status" asp-items="Model.StatusOptions" class="form-control"></select>
+                    </div>
+                    <div class="form-group">
+                        <label asp-for="AssignedToId">Assign to</label>
+                        <select asp-for="AssignedToId" class="form-control">
+                            <option value="">Unassigned</option>
+                            @foreach (var user in Model.Users)
+                            {
+                                <option value="@user.Value">@user.Text</option>
+                            }
+                        </select>
+                    </div>
+                </div>
+            }
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-outline" asp-action="Details" asp-route-id="@Model.Id">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,120 @@
+@model IForm.Web.ViewModels.MaterialCertificateListViewModel
+@{
+    ViewData["Title"] = "Mill Test Certificates";
+    ViewData["PageTitle"] = "Mill Test Certificates";
+    ViewData["PageSubtitle"] = $"{Model.TotalCount} certificate{(Model.TotalCount == 1 ? "" : "s")} on record";
+    ViewData["ActiveMenu"] = "mtc";
+}
+
+@functions {
+    string BuildUrl(int? page = null, bool resetPage = false)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"search={Uri.EscapeDataString(Model.Search)}");
+        query.Add($"page={(page ?? (resetPage ? 1 : Model.Page))}");
+        return "?" + string.Join("&", query);
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Certificate register</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New Certificate
+        </a>
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 240px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search certificate, supplier, alloy, work order..." />
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            @if (Model.Search is not null)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Certificate No.</th>
+                    <th>Supplier</th>
+                    <th>Report / Lab No.</th>
+                    <th>Work Order</th>
+                    <th>Alloy</th>
+                    <th>Test method</th>
+                    <th>Report date</th>
+                    <th>Valid until</th>
+                    <th>File</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Certificates.Count == 0)
+                {
+                    <tr>
+                        <td colspan="9">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                                    <polyline points="14 2 14 8 20 8"></polyline>
+                                </svg>
+                                No certificates match your search.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Upload a certificate</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var cert in Model.Certificates)
+                {
+                    <tr>
+                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@cert.Id">@cert.CertificateNumber</a></td>
+                        <td class="ticket-title">@cert.Supplier</td>
+                        <td class="text-muted text-sm">@(cert.SupplierReportNo ?? "—")</td>
+                        <td class="text-muted text-sm">@(cert.WorkOrderNo ?? "—")</td>
+                        <td>@(cert.Alloy ?? "—")</td>
+                        <td class="text-muted text-sm">@(cert.TestMethod ?? "—")</td>
+                        <td class="text-muted text-sm">@(cert.ReportDate?.ToLocalTime().ToString("dd-MMM-yy") ?? "—")</td>
+                        <td class="text-muted text-sm">@(cert.ValidUntil?.ToLocalTime().ToString("dd-MMM-yy") ?? "—")</td>
+                        <td>
+                            @if (cert.FilePath is not null)
+                            {
+                                <a class="btn btn-outline btn-sm" asp-action="Download" asp-route-id="@cert.Id" title="@cert.FileName">Download</a>
+                            }
+                            else
+                            {
+                                <span class="text-muted text-sm">—</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination">
+            <div class="page-info">
+                Page @Model.Page of @Model.TotalPages &middot; @Model.TotalCount certificate@(Model.TotalCount == 1 ? "" : "s")
+            </div>
+            <div class="pagination-controls">
+                <a class="page-btn @(Model.Page <= 1 ? "disabled" : "")" href="@BuildUrl(page: Model.Page - 1)">&laquo; Prev</a>
+                @{
+                    var start = Math.Max(1, Model.Page - 2);
+                    var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                }
+                @for (var p = start; p <= end; p++)
+                {
+                    <a class="page-btn @(p == Model.Page ? "active" : "")" href="@BuildUrl(page: p)">@p</a>
+                }
+                <a class="page-btn @(Model.Page >= Model.TotalPages ? "disabled" : "")" href="@BuildUrl(page: Model.Page + 1)">Next &raquo;</a>
+            </div>
+        </div>
+    }
+</div>

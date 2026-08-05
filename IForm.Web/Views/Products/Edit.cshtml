@@ -1,0 +1,80 @@
+@model IForm.Web.ViewModels.ProductFormViewModel
+@{
+    ViewData["Title"] = "Edit Product";
+    ViewData["PageTitle"] = "Edit Product";
+    ViewData["PageSubtitle"] = "Update product catalogue entry";
+    ViewData["ActiveMenu"] = "products";
+}
+
+<form asp-action="Edit" method="post">
+    <input type="hidden" asp-for="Id" />
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Product details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ProductCode">Product code</label>
+                    <input asp-for="ProductCode" class="form-control" autofocus />
+                    <span asp-validation-for="ProductCode" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Name">Name</label>
+                    <input asp-for="Name" class="form-control" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Family">Family</label>
+                    <input asp-for="Family" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Material">Material</label>
+                    <input asp-for="Material" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Specification">Specification</label>
+                    <input asp-for="Specification" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Dimensions">Dimensions</label>
+                    <input asp-for="Dimensions" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Project">Project</label>
+                    <input asp-for="Project" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="Unit">Unit</label>
+                    <input asp-for="Unit" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="IsActive">Status</label>
+                <select asp-for="IsActive" class="form-control">
+                    <option value="true">Active</option>
+                    <option value="false">Inactive</option>
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Save changes</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,236 @@
+@model IForm.Web.ViewModels.IncidentDetailViewModel
+@{
+    var incident = Model.Incident;
+    ViewData["Title"] = incident.IncidentNumber;
+    ViewData["PageTitle"] = incident.IncidentNumber;
+    ViewData["PageSubtitle"] = incident.Title;
+    ViewData["ActiveMenu"] = "incidents";
+}
+
+@functions {
+    static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[^1][0]}" : name[..Math.Min(2, name.Length)];
+    }
+}
+
+<div class="detail-header">
+    <div class="detail-title">
+        <h1>@incident.Title</h1>
+        <span class="badge @UiClasses.IncidentStatus(incident.Status)">@incident.Status</span>
+        <span class="badge @UiClasses.IncidentSeverity(incident.Severity)">@incident.Severity</span>
+        <span class="badge @UiClasses.IncidentType(incident.Type)">@incident.Type</span>
+    </div>
+    <div class="mt-2">
+        <a class="btn btn-sm btn-outline" asp-action="Index">&larr; Back to incidents</a>
+        <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@incident.Id">Edit</a>
+    </div>
+</div>
+
+<div class="row">
+    <div style="flex: 1.6;">
+        <div class="card mb-2">
+            <div class="card-header">
+                <h2>Details</h2>
+                <span class="text-muted text-sm">Reported @incident.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value"><span class="badge @UiClasses.IncidentStatus(incident.Status)">@incident.Status</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Severity</div>
+                        <div class="meta-value"><span class="badge @UiClasses.IncidentSeverity(incident.Severity)">@incident.Severity</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Type</div>
+                        <div class="meta-value"><span class="badge @UiClasses.IncidentType(incident.Type)">@incident.Type</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Occurred</div>
+                        <div class="meta-value">@incident.OccurredAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</div>
+                    </div>
+                </div>
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Site</div>
+                        <div class="meta-value">@(incident.Site?.Name ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Location</div>
+                        <div class="meta-value">@(incident.Location ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Reported by</div>
+                        <div class="meta-value">@(incident.ReportedBy?.FullName ?? "Unknown")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Assigned to</div>
+                        <div class="meta-value">@(incident.AssignedTo?.FullName ?? "Unassigned")</div>
+                    </div>
+                </div>
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Work related</div>
+                        <div class="meta-value">@(incident.IsWorkRelated ? "Yes" : "No")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Persons involved</div>
+                        <div class="meta-value">@(incident.PersonsInvolved?.ToString() ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Days lost</div>
+                        <div class="meta-value">@(incident.DaysLost?.ToString() ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Last updated</div>
+                        <div class="meta-value">@(incident.UpdatedAt?.ToLocalTime().ToString("MMM dd, yyyy HH:mm") ?? "—")</div>
+                    </div>
+                </div>
+
+                <div class="section-title">Description</div>
+                <div class="desc-box">@incident.Description</div>
+
+                @if (!string.IsNullOrWhiteSpace(incident.ImmediateActionTaken))
+                {
+                    <div class="section-title mt-3">Immediate action taken</div>
+                    <div class="desc-box" style="background: #fffbeb; border-color: #fde68a;">@incident.ImmediateActionTaken</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(incident.RootCause))
+                {
+                    <div class="section-title mt-3">Root cause</div>
+                    <div class="desc-box" style="background: #fef2f2; border-color: #fecaca;">@incident.RootCause</div>
+                }
+
+                @if (!string.IsNullOrWhiteSpace(incident.InvestigationNotes))
+                {
+                    <div class="section-title mt-3">Investigation notes</div>
+                    <div class="desc-box" style="background: #ecfeff; border-color: #a5f3fc;">@incident.InvestigationNotes</div>
+                }
+            </div>
+        </div>
+
+        <div class="card">
+            <div class="card-header">
+                <h2>Actions (@incident.Actions.Count)</h2>
+                <a class="btn btn-sm btn-outline" asp-controller="Actions" asp-action="Create" asp-route-incidentId="@incident.Id">
+                    + Add action
+                </a>
+            </div>
+            <div class="card-body flush">
+                @if (incident.Actions.Count == 0)
+                {
+                    <div class="empty-state">No corrective actions yet. <a asp-controller="Actions" asp-action="Create" asp-route-incidentId="@incident.Id">Add one</a>.</div>
+                }
+                else
+                {
+                    <div class="table-wrap">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Action</th>
+                                    <th>Priority</th>
+                                    <th>Status</th>
+                                    <th>Assigned To</th>
+                                    <th>Due</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var action in incident.Actions)
+                                {
+                                    <tr>
+                                        <td>
+                                            <a class="ticket-id" asp-controller="Actions" asp-action="Details" asp-route-id="@action.Id">@action.ActionNumber</a>
+                                            <div class="ticket-title"><a asp-controller="Actions" asp-action="Details" asp-route-id="@action.Id">@action.Title</a></div>
+                                        </td>
+                                        <td><span class="badge @UiClasses.ActionPriority(action.Priority)">@action.Priority</span></td>
+                                        <td><span class="badge @UiClasses.ActionStatus(action.Status)">@action.Status</span></td>
+                                        <td>@(action.AssignedTo?.FullName ?? "—")</td>
+                                        <td class="text-muted text-sm">@(action.DueDate?.ToLocalTime().ToString("MMM dd") ?? "—")</td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1;">
+        @if (Model.CanManage)
+        {
+            <div class="card mb-2">
+                <div class="card-header"><h2>Update status</h2></div>
+                <div class="card-body">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@incident.Id" />
+                        <div class="form-group mb-1">
+                            <select name="status" class="form-control">
+                                @foreach (var status in Enum.GetValues<IncidentStatus>())
+                                {
+                                    <option value="@status" selected="@(status == incident.Status)">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <div class="form-group mb-1">
+                            <textarea name="rootCause" class="form-control" placeholder="Root cause (optional)">@incident.RootCause</textarea>
+                        </div>
+                        <div class="form-group mb-1">
+                            <textarea name="investigationNotes" class="form-control" placeholder="Investigation notes (optional)">@incident.InvestigationNotes</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Apply status</button>
+                    </form>
+                </div>
+            </div>
+
+            <div class="card mb-2">
+                <div class="card-header"><h2>Assignment</h2></div>
+                <div class="card-body">
+                    <form asp-action="Assign" method="post">
+                        <input type="hidden" name="id" value="@incident.Id" />
+                        <div class="form-group mb-1">
+                            <select name="assignedToId" class="form-control">
+                                <option value="">Unassigned</option>
+                                @foreach (var user in Model.Users)
+                                {
+                                    <option value="@user.Value" selected="@(user.Selected)">@user.Text</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Assign investigator</button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (Model.CanManage && incident.Status != IncidentStatus.Closed)
+        {
+            <div class="card">
+                <div class="card-header"><h2>Quick actions</h2></div>
+                <div class="card-body d-grid">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@incident.Id" />
+                        <input type="hidden" name="status" value="UnderInvestigation" />
+                        <button type="submit" class="btn btn-outline btn-block">Start investigation</button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@incident.Id" />
+                        <input type="hidden" name="status" value="CorrectiveAction" />
+                        <button type="submit" class="btn btn-outline btn-block">Corrective actions</button>
+                    </form>
+                    <form asp-action="ChangeStatus" method="post" onsubmit="return confirm('Close this incident?');">
+                        <input type="hidden" name="id" value="@incident.Id" />
+                        <input type="hidden" name="status" value="Closed" />
+                        <button type="submit" class="btn btn-danger-outline btn-block">Close incident</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

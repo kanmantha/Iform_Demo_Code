@@ -1,0 +1,68 @@
+@model IForm.Web.Models.SiteQuery
+@{
+    var q = Model;
+    ViewData["Title"] = "Auto-Email";
+    ViewData["PageTitle"] = "Auto-Generated Email";
+    ViewData["PageSubtitle"] = $"{q.QueryNumber} - {q.Project} (IPO {q.IpoNumber})";
+    ViewData["ActiveMenu"] = "sitequeries";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Email preview</h2>
+        <a class="btn btn-sm btn-outline" asp-action="Details" asp-route-id="@q.Id">&larr; Back to query</a>
+    </div>
+    <div class="card-body">
+        <form id="emailForm" class="mt-1">
+            <div class="form-group">
+                <label for="emailSubject">Subject</label>
+                <input id="emailSubject" name="subject" class="form-control" value="@ViewData["EmailSubject"]" />
+            </div>
+            <div class="form-group">
+                <label for="emailBody">Body</label>
+                <textarea id="emailBody" name="body" class="form-control" rows="12">@ViewData["EmailBody"]</textarea>
+            </div>
+            <span class="text-muted text-sm">Body and subject were auto-filled from the query and can be edited before sending.</span>
+        </form>
+
+        <div class="email-preview mt-2">
+            <div class="email-preview-head">
+                <div class="email-to">To: Project Manager</div>
+                <div class="email-subject" id="previewSubject">@ViewData["EmailSubject"]</div>
+            </div>
+            <div class="email-preview-body" id="previewBody">@ViewData["EmailBody"]</div>
+        </div>
+
+        <div class="form-actions mt-3" style="justify-content: center;">
+            <button type="button" class="btn btn-primary" id="copyEmail">Copy to clipboard</button>
+            <a class="btn btn-outline" asp-action="Details" asp-route-id="@q.Id">Done</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        const subjectInput = document.getElementById('emailSubject');
+        const bodyInput = document.getElementById('emailBody');
+        const previewSubject = document.getElementById('previewSubject');
+        const previewBody = document.getElementById('previewBody');
+
+        subjectInput.addEventListener('input', function () {
+            previewSubject.textContent = subjectInput.value;
+        });
+        bodyInput.addEventListener('input', function () {
+            previewBody.textContent = bodyInput.value;
+        });
+
+        document.getElementById('copyEmail').addEventListener('click', async function () {
+            const subject = subjectInput.value;
+            const body = bodyInput.value;
+            try {
+                await navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
+                this.textContent = 'Copied!';
+            } catch {
+                this.textContent = 'Copy failed';
+            }
+        });
+    </script>
+}

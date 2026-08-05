@@ -1,0 +1,48 @@
+@model IForm.Web.ViewModels.LoginViewModel
+@{
+    Layout = "_AuthLayout";
+    ViewData["Title"] = "Sign in";
+}
+
+<h1 class="auth-title">Welcome back</h1>
+<p class="auth-subtitle">Sign in to report and manage safety incidents</p>
+
+<form asp-action="Login" method="post" role="form">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <input type="hidden" asp-for="ReturnUrl" />
+
+    <div class="form-group">
+        <label asp-for="Email">Email</label>
+        <input asp-for="Email" class="form-control" autocomplete="email" autofocus />
+        <span asp-validation-for="Email" class="text-danger"></span>
+    </div>
+
+    <div class="form-group">
+        <label asp-for="Password">Password</label>
+        <input asp-for="Password" class="form-control" autocomplete="current-password" />
+        <span asp-validation-for="Password" class="text-danger"></span>
+    </div>
+
+    <div class="form-group checkbox-group">
+        <input asp-for="RememberMe" />
+        <label asp-for="RememberMe" class="mb-0">Remember me</label>
+    </div>
+
+    <button type="submit" class="btn btn-primary btn-block">Sign in</button>
+</form>
+
+<div class="demo-hint">
+    <strong>Demo accounts</strong><br />
+    Admin &mdash; <code>admin@iform.app</code> / <code>Admin@123</code><br />
+    Manager &mdash; <code>manager@iform.app</code> / <code>Manager@123</code><br />
+    User &mdash; <code>john@iform.app</code> / <code>User@123</code>
+</div>
+
+<div class="auth-footer">
+    Don't have an account? <a asp-action="Register">Create one</a>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

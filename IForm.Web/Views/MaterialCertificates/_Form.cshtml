@@ -1,0 +1,90 @@
+@model IForm.Web.ViewModels.MaterialCertificateFormViewModel
+@{
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+}
+
+<form asp-action="@formAction" method="post" enctype="multipart/form-data">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    @if (Model.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Supplier &amp; report details</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Supplier">Supplier</label>
+                    <input asp-for="Supplier" class="form-control" autofocus placeholder="e.g. Jyothi Spectro Analysis" />
+                    <span asp-validation-for="Supplier" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="SupplierReportNo">Supplier report no / Lab no</label>
+                    <input asp-for="SupplierReportNo" class="form-control" placeholder="e.g. R22u158526" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="WorkOrderNo">Work order no</label>
+                    <input asp-for="WorkOrderNo" class="form-control" placeholder="e.g. JSA.26-04035" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Alloy">Alloy / grade</label>
+                    <input asp-for="Alloy" class="form-control" placeholder="e.g. Aluminium 6063" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="TestMethod">Test method</label>
+                    <input asp-for="TestMethod" class="form-control" placeholder="e.g. ASTM B221 / B557" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Dates &amp; validity</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="ReportDate">Report date</label>
+                    <input asp-for="ReportDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="SampleReceivedDate">Sample received date</label>
+                    <input asp-for="SampleReceivedDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="TestDate">Test date</label>
+                    <input asp-for="TestDate" type="date" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="ValidUntil">Valid until</label>
+                    <input asp-for="ValidUntil" type="date" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group" style="flex: 1 1 100%">
+                    <label asp-for="Remarks">Remarks / test results</label>
+                    <textarea asp-for="Remarks" class="form-control" rows="3" placeholder="Element ranges and results, e.g. Si 0.40-0.80%, Fe 0.25-0.40%, Cu 0.80-1.20%"></textarea>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Report file</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label>Report file</label>
+                <input type="file" name="file" class="form-control" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+                <span class="text-muted text-sm">PDF or image, up to 10 MB. Optional.</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Upload Certificate")</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>

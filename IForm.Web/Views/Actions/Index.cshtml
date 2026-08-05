@@ -1,0 +1,180 @@
+@model IForm.Web.ViewModels.ActionListViewModel
+@{
+    ViewData["Title"] = "Action Tracker";
+    ViewData["PageTitle"] = "Action Tracker";
+    ViewData["PageSubtitle"] = $"{Model.TotalCount} action{(Model.TotalCount == 1 ? "" : "s")} found";
+    ViewData["ActiveMenu"] = "actions";
+}
+
+@functions {
+    string BuildUrl(string? sortBy = null, int? page = null, bool resetPage = false)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"search={Uri.EscapeDataString(Model.Search)}");
+        if (Model.Status.HasValue) query.Add($"status={Model.Status}");
+        if (Model.Priority.HasValue) query.Add($"priority={Model.Priority}");
+        if (!string.IsNullOrWhiteSpace(Model.AssignedToId)) query.Add($"assignedToId={Model.AssignedToId}");
+        if (Model.OverdueOnly) query.Add("overdueOnly=true");
+        query.Add($"sortBy={Uri.EscapeDataString(sortBy ?? Model.SortBy)}");
+        query.Add($"page={(page ?? (resetPage ? 1 : Model.Page))}");
+        return "?" + string.Join("&", query);
+    }
+
+    string IsOverdue(ActionItem action)
+    {
+        var overdue = action.Status != ActionStatus.Completed && action.Status != ActionStatus.Cancelled
+            && action.DueDate.HasValue && action.DueDate.Value < DateTime.UtcNow;
+        return overdue ? "text-danger" : "text-muted";
+    }
+}
+
+@if (Model.OverdueCount > 0)
+{
+    <div class="alert alert-warning" role="alert">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <circle cx="12" cy="12" r="10"></circle><line x1="12" y1="8" x2="12" y2="12"></line><line x1="12" y1="16" x2="12.01" y2="16"></line>
+        </svg>
+        @Model.OverdueCount overdue action(s) need attention.
+        <a class="text-underline" asp-action="Index" asp-route-overdueOnly="true">View overdue</a>
+    </div>
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Filter actions</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            New action
+        </a>
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 260px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search number, title, description..." />
+            </div>
+            <div class="filter-item">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    @foreach (var item in Model.StatusOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="priority" class="form-control">
+                    <option value="">All priorities</option>
+                    @foreach (var item in Model.PriorityOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="assignedToId" class="form-control">
+                    <option value="">Anyone assigned</option>
+                    @foreach (var user in Model.Users)
+                    {
+                        <option value="@user.Id" selected="@(user.Id == Model.AssignedToId)">@user.FullName</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <label class="checkbox-label">
+                    <input type="checkbox" name="overdueOnly" value="true" checked="@Model.OverdueOnly" /> Overdue only
+                </label>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            @if (Model.Search is not null || Model.Status.HasValue || Model.Priority.HasValue || !string.IsNullOrEmpty(Model.AssignedToId) || Model.OverdueOnly)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><a href="@BuildUrl("created_desc")">Action</a></th>
+                    <th>Title</th>
+                    <th>Priority</th>
+                    <th>Status</th>
+                    <th>Assigned To</th>
+                    <th>Linked To</th>
+                    <th><a href="@BuildUrl("due_asc")">Due</a></th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Actions.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                No actions match your filters.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Create a new action</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var action in Model.Actions)
+                {
+                    <tr>
+                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@action.Id">@action.ActionNumber</a></td>
+                        <td class="ticket-title"><a asp-action="Details" asp-route-id="@action.Id">@action.Title</a></td>
+                        <td><span class="badge @UiClasses.ActionPriority(action.Priority)">@action.Priority</span></td>
+                        <td><span class="badge @UiClasses.ActionStatus(action.Status)">@action.Status</span></td>
+                        <td>@(action.AssignedTo?.FullName ?? "—")</td>
+                        <td>
+                            @if (action.Incident is not null)
+                            {
+                                <span class="text-sm">INC: <a asp-controller="Incidents" asp-action="Details" asp-route-id="@action.Incident.Id">@action.Incident.IncidentNumber</a></span>
+                            }
+                            @if (action.Ticket is not null)
+                            {
+                                <span class="text-sm">TKT: <a asp-controller="Tickets" asp-action="Details" asp-route-id="@action.Ticket.Id">@action.Ticket.TicketNumber</a></span>
+                            }
+                            @if (action.Incident is null && action.Ticket is null)
+                            {
+                                <span class="text-muted">—</span>
+                            }
+                        </td>
+                        <td class="text-sm @IsOverdue(action)">
+                            @(action.DueDate?.ToLocalTime().ToString("MMM dd, yyyy") ?? "—")
+                            @if (IsOverdue(action) == "text-danger")
+                            {
+                                <span>&middot; overdue</span>
+                            }
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination">
+            <div class="page-info">
+                Page @Model.Page of @Model.TotalPages &middot; @Model.TotalCount action(s)
+            </div>
+            <div class="pagination-controls">
+                <a class="page-btn @(Model.Page <= 1 ? "disabled" : "")" href="@BuildUrl(page: Model.Page - 1)">&laquo; Prev</a>
+                @{
+                    var start = Math.Max(1, Model.Page - 2);
+                    var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                }
+                @for (var p = start; p <= end; p++)
+                {
+                    <a class="page-btn @(p == Model.Page ? "active" : "")" href="@BuildUrl(page: p)">@p</a>
+                }
+                <a class="page-btn @(Model.Page >= Model.TotalPages ? "disabled" : "")" href="@BuildUrl(page: Model.Page + 1)">Next &raquo;</a>
+            </div>
+        </div>
+    }
+</div>

@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.MaterialCertificateFormViewModel
+@{
+    ViewData["Title"] = $"Edit {Model.CertificateNumber}";
+    ViewData["PageTitle"] = $"Edit {Model.CertificateNumber}";
+    ViewData["PageSubtitle"] = "Update material test certificate details";
+    ViewData["ActiveMenu"] = "mtc";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

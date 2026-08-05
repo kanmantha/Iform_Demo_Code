@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.DispatchFormViewModel
+@{
+    ViewData["Title"] = "New Dispatch Entry";
+    ViewData["PageTitle"] = "Record Dispatch Entry";
+    ViewData["PageSubtitle"] = "Log a slab / material dispatch with target, completed date, and reason";
+    ViewData["ActiveMenu"] = "dispatch-create";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

@@ -1,0 +1,44 @@
+@model IForm.Web.Models.EotRequest
+@{
+    var eot = Model;
+    ViewData["Title"] = "Auto-Email";
+    ViewData["PageTitle"] = "Auto-Generated EOT Email";
+    ViewData["PageSubtitle"] = $"{eot.EotNumber} - {eot.Project}";
+    ViewData["ActiveMenu"] = "eot";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Email preview</h2>
+        <a class="btn btn-sm btn-outline" asp-action="Details" asp-route-id="@eot.Id">&larr; Back to EOT</a>
+    </div>
+    <div class="card-body">
+        <div class="email-preview">
+            <div class="email-preview-head">
+                <div class="email-to">To: All concerned stakeholders (project directory)</div>
+                <div class="email-subject">@ViewData["EmailSubject"]</div>
+            </div>
+            <div class="email-preview-body">@ViewData["EmailBody"]</div>
+        </div>
+
+        <div class="form-actions mt-3" style="justify-content: center;">
+            <button type="button" class="btn btn-primary" id="copyEmail">Copy to clipboard</button>
+            <a class="btn btn-outline" asp-action="Details" asp-route-id="@eot.Id">Done</a>
+        </div>
+    </div>
+</div>
+
+@section Scripts {
+    <script>
+        document.getElementById('copyEmail').addEventListener('click', async function () {
+            const subject = '@Html.Raw(ViewData["EmailSubject"])';
+            const body = '@Html.Raw(ViewData["EmailBody"])';
+            try {
+                await navigator.clipboard.writeText(`Subject: ${subject}\n\n${body}`);
+                this.textContent = 'Copied!';
+            } catch {
+                this.textContent = 'Copy failed';
+            }
+        });
+    </script>
+}

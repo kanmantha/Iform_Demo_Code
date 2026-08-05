@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.MaterialCertificateFormViewModel
+@{
+    ViewData["Title"] = "New Certificate";
+    ViewData["PageTitle"] = "Upload Material Test Certificate";
+    ViewData["PageSubtitle"] = "Record a Jyothi Spectro / mill test report";
+    ViewData["ActiveMenu"] = "mtc-create";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

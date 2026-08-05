@@ -1,0 +1,152 @@
+@model IForm.Web.ViewModels.ActionDetailViewModel
+@{
+    var action = Model.Action;
+    ViewData["Title"] = action.ActionNumber;
+    ViewData["PageTitle"] = action.ActionNumber;
+    ViewData["PageSubtitle"] = action.Title;
+    ViewData["ActiveMenu"] = "actions";
+}
+
+@functions {
+    static bool IsOverdue(ActionItem a)
+    {
+        return a.Status != ActionStatus.Completed && a.Status != ActionStatus.Cancelled
+            && a.DueDate.HasValue && a.DueDate.Value < DateTime.UtcNow;
+    }
+}
+
+<div class="detail-header">
+    <div class="detail-title">
+        <h1>@action.Title</h1>
+        <span class="badge @UiClasses.ActionStatus(action.Status)">@action.Status</span>
+        <span class="badge @UiClasses.ActionPriority(action.Priority)">@action.Priority</span>
+    </div>
+    <div class="mt-2">
+        <a class="btn btn-sm btn-outline" asp-action="Index">&larr; Back to actions</a>
+        @if (Model.CanManage)
+        {
+            <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@action.Id">Edit</a>
+        }
+    </div>
+</div>
+
+<div class="row">
+    <div style="flex: 1.6;">
+        <div class="card mb-2">
+            <div class="card-header">
+                <h2>Details</h2>
+                <span class="text-muted text-sm">Created @action.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy HH:mm")</span>
+            </div>
+            <div class="card-body">
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Status</div>
+                        <div class="meta-value"><span class="badge @UiClasses.ActionStatus(action.Status)">@action.Status</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Priority</div>
+                        <div class="meta-value"><span class="badge @UiClasses.ActionPriority(action.Priority)">@action.Priority</span></div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Due date</div>
+                        <div class="meta-value @(IsOverdue(action) ? "text-danger" : "")">
+                            @(action.DueDate?.ToLocalTime().ToString("MMM dd, yyyy") ?? "—")
+                            @if (IsOverdue(action))
+                            {
+                                <span>&middot; overdue</span>
+                            }
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Completed</div>
+                        <div class="meta-value">@(action.CompletedAt?.ToLocalTime().ToString("MMM dd, yyyy") ?? "—")</div>
+                    </div>
+                </div>
+                <div class="meta-grid mb-2">
+                    <div class="meta-item">
+                        <div class="meta-label">Assigned to</div>
+                        <div class="meta-value">@(action.AssignedTo?.FullName ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Created by</div>
+                        <div class="meta-value">@(action.CreatedBy?.FullName ?? "—")</div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Linked incident</div>
+                        <div class="meta-value">
+                            @if (action.Incident is not null)
+                            {
+                                <a asp-controller="Incidents" asp-action="Details" asp-route-id="@action.Incident.Id">@action.Incident.IncidentNumber</a>
+                            }
+                            else
+                            {
+                                @("—")
+                            }
+                        </div>
+                    </div>
+                    <div class="meta-item">
+                        <div class="meta-label">Linked ticket</div>
+                        <div class="meta-value">
+                            @if (action.Ticket is not null)
+                            {
+                                <a asp-controller="Tickets" asp-action="Details" asp-route-id="@action.Ticket.Id">@action.Ticket.TicketNumber</a>
+                            }
+                            else
+                            {
+                                @("—")
+                            }
+                        </div>
+                    </div>
+                </div>
+
+                <div class="section-title">Description</div>
+                <div class="desc-box">@action.Description</div>
+
+                @if (!string.IsNullOrWhiteSpace(action.CompletionNotes))
+                {
+                    <div class="section-title mt-3">Completion notes</div>
+                    <div class="desc-box" style="background: #ecfdf5; border-color: #a7f3d0;">@action.CompletionNotes</div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div style="flex: 1;">
+        @if (action.Status != ActionStatus.Completed && action.Status != ActionStatus.Cancelled)
+        {
+            <div class="card mb-2">
+                <div class="card-header"><h2>Mark complete</h2></div>
+                <div class="card-body">
+                    <form asp-action="Complete" method="post">
+                        <input type="hidden" name="id" value="@action.Id" />
+                        <div class="form-group mb-1">
+                            <textarea name="completionNotes" class="form-control" placeholder="Completion notes (optional)">@action.CompletionNotes</textarea>
+                        </div>
+                        <button type="submit" class="btn btn-success btn-block">Complete action</button>
+                    </form>
+                </div>
+            </div>
+        }
+
+        @if (Model.CanManage)
+        {
+            <div class="card">
+                <div class="card-header"><h2>Change status</h2></div>
+                <div class="card-body">
+                    <form asp-action="ChangeStatus" method="post">
+                        <input type="hidden" name="id" value="@action.Id" />
+                        <div class="form-group mb-1">
+                            <select name="status" class="form-control">
+                                @foreach (var status in Enum.GetValues<ActionStatus>())
+                                {
+                                    <option value="@status" selected="@(status == action.Status)">@status</option>
+                                }
+                            </select>
+                        </div>
+                        <button type="submit" class="btn btn-primary btn-block">Apply status</button>
+                    </form>
+                </div>
+            </div>
+        }
+    </div>
+</div>

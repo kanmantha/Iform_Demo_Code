@@ -1,0 +1,78 @@
+@model IEnumerable<IForm.Web.Models.OrganizationUnit>
+@{
+    var units = Model.ToList();
+    ViewData["Title"] = "Organization";
+    ViewData["PageTitle"] = "Organization Structure";
+    ViewData["PageSubtitle"] = "Departments, teams and members";
+    ViewData["ActiveMenu"] = "organization";
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Departments (@units.Count)</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add department
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Parent</th>
+                    <th>Manager</th>
+                    <th>Members</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (units.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                No departments configured yet.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Add your first department</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var unit in units)
+                {
+                    <tr>
+                        <td><span class="badge badge-secondary">@unit.Code</span></td>
+                        <td class="ticket-title">@unit.Name</td>
+                        <td class="text-muted text-sm">@(unit.Parent?.Name ?? "—")</td>
+                        <td>@(unit.Manager?.FullName ?? "—")</td>
+                        <td>
+                            <a class="btn btn-sm btn-outline" asp-action="Members" asp-route-id="@unit.Id">
+                                @unit.Members.Count member(s)
+                            </a>
+                        </td>
+                        <td>
+                            <span class="badge @(unit.IsActive ? "badge-status-resolved" : "badge-status-closed")">
+                                @(unit.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="inline-actions">
+                                <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@unit.Id">Edit</a>
+                                <form asp-action="ToggleActive" method="post" class="inline-form">
+                                    <input type="hidden" name="id" value="@unit.Id" />
+                                    <button type="submit" class="btn btn-sm @(unit.IsActive ? "btn-danger-outline" : "btn-success")">
+                                        @(unit.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

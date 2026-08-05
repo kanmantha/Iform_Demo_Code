@@ -1,0 +1,101 @@
+@model List<IForm.Web.Models.Site>
+@{
+    ViewData["Title"] = "Sites";
+    ViewData["PageTitle"] = "Site Management";
+    ViewData["PageSubtitle"] = "Manage operational sites";
+    ViewData["ActiveMenu"] = "sites";
+
+    var ticketCounts = (Dictionary<int, int>)ViewBag.TicketCounts;
+    var incidentCounts = (Dictionary<int, int>)ViewBag.IncidentCounts;
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Sites (@Model.Count)</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add site
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>Code</th>
+                    <th>Name</th>
+                    <th>Location</th>
+                    <th>Tickets</th>
+                    <th>Incidents</th>
+                    <th>Status</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Count == 0)
+                {
+                    <tr>
+                        <td colspan="7">
+                            <div class="empty-state">
+                                No sites configured yet.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Add your first site</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var site in Model)
+                {
+                    <tr>
+                        <td><span class="badge badge-secondary">@site.Code</span></td>
+                        <td class="ticket-title">@site.Name</td>
+                        <td class="text-muted text-sm">
+                            @if (!string.IsNullOrEmpty(site.Address))
+                            {
+                                @site.Address
+                            }
+                            @if (!string.IsNullOrEmpty(site.City))
+                            {
+                                @(string.IsNullOrEmpty(site.Address) ? "" : ", ")<text>@site.City</text>
+                            }
+                            @if (!string.IsNullOrEmpty(site.Country))
+                            {
+                                @(", ")<text>@site.Country</text>
+                            }
+                            @if (string.IsNullOrEmpty(site.Address) && string.IsNullOrEmpty(site.City) && string.IsNullOrEmpty(site.Country))
+                            {
+                                @("—")
+                            }
+                        </td>
+                        <td>
+                            <span class="badge @(ticketCounts.GetValueOrDefault(site.Id) > 0 ? "badge-status-progress" : "badge-secondary")">
+                                @ticketCounts.GetValueOrDefault(site.Id)
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @(incidentCounts.GetValueOrDefault(site.Id) > 0 ? "badge-status-pending" : "badge-secondary")">
+                                @incidentCounts.GetValueOrDefault(site.Id)
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge @(site.IsActive ? "badge-status-resolved" : "badge-status-closed")">
+                                @(site.IsActive ? "Active" : "Inactive")
+                            </span>
+                        </td>
+                        <td>
+                            <div class="inline-actions">
+                                <a class="btn btn-sm btn-outline" asp-action="Edit" asp-route-id="@site.Id">Edit</a>
+                                <form asp-action="ToggleActive" method="post" class="inline-form">
+                                    <input type="hidden" name="id" value="@site.Id" />
+                                    <button type="submit" class="btn btn-sm @(site.IsActive ? "btn-danger-outline" : "btn-success")">
+                                        @(site.IsActive ? "Deactivate" : "Activate")
+                                    </button>
+                                </form>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>

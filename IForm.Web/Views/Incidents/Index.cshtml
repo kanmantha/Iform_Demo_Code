@@ -1,0 +1,149 @@
+@model IForm.Web.ViewModels.IncidentListViewModel
+@{
+    ViewData["Title"] = "Incidents";
+    ViewData["PageTitle"] = "Incident Register";
+    ViewData["PageSubtitle"] = $"{Model.TotalCount} incident{(Model.TotalCount == 1 ? "" : "s")} found";
+    ViewData["ActiveMenu"] = "incidents";
+}
+
+@functions {
+    string BuildUrl(string? sortBy = null, int? page = null, bool resetPage = false)
+    {
+        var query = new List<string>();
+        if (!string.IsNullOrWhiteSpace(Model.Search)) query.Add($"search={Uri.EscapeDataString(Model.Search)}");
+        if (Model.Type.HasValue) query.Add($"type={Model.Type}");
+        if (Model.Severity.HasValue) query.Add($"severity={Model.Severity}");
+        if (Model.Status.HasValue) query.Add($"status={Model.Status}");
+        if (Model.SiteId.HasValue) query.Add($"siteId={Model.SiteId}");
+        query.Add($"sortBy={Uri.EscapeDataString(sortBy ?? Model.SortBy)}");
+        query.Add($"page={(page ?? (resetPage ? 1 : Model.Page))}");
+        return "?" + string.Join("&", query);
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Filter incidents</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Report incident
+        </a>
+    </div>
+    <div class="filter-bar">
+        <form method="get" asp-action="Index">
+            <div class="filter-item" style="flex: 1 1 260px;">
+                <input class="form-control" name="search" value="@Model.Search" placeholder="Search number, title, location..." />
+            </div>
+            <div class="filter-item">
+                <select name="type" class="form-control">
+                    <option value="">All types</option>
+                    @foreach (var item in Model.TypeOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="severity" class="form-control">
+                    <option value="">All severities</option>
+                    @foreach (var item in Model.SeverityOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="status" class="form-control">
+                    <option value="">All statuses</option>
+                    @foreach (var item in Model.StatusOptions)
+                    {
+                        <option value="@item.Value" selected="@(item.Selected)">@item.Text</option>
+                    }
+                </select>
+            </div>
+            <div class="filter-item">
+                <select name="siteId" class="form-control">
+                    <option value="">All sites</option>
+                    @foreach (var site in Model.Sites)
+                    {
+                        <option value="@site.Id" selected="@(site.Id == Model.SiteId)">@site.Name</option>
+                    }
+                </select>
+            </div>
+            <button type="submit" class="btn btn-primary">Apply</button>
+            @if (Model.Search is not null || Model.Type.HasValue || Model.Severity.HasValue || Model.Status.HasValue || Model.SiteId.HasValue)
+            {
+                <a class="btn btn-outline" asp-action="Index">Clear</a>
+            }
+        </form>
+    </div>
+
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th><a href="@BuildUrl("occurred_desc")">Incident</a></th>
+                    <th>Title</th>
+                    <th>Type</th>
+                    <th>Severity</th>
+                    <th>Status</th>
+                    <th>Site</th>
+                    <th>Assigned To</th>
+                    <th>Occurred</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (Model.Incidents.Count == 0)
+                {
+                    <tr>
+                        <td colspan="8">
+                            <div class="empty-state">
+                                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
+                                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                                </svg>
+                                No incidents match your filters.
+                                <div class="mt-2"><a class="btn btn-sm btn-outline" asp-action="Create">Report a new incident</a></div>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                @foreach (var incident in Model.Incidents)
+                {
+                    <tr>
+                        <td><a class="ticket-id" asp-action="Details" asp-route-id="@incident.Id">@incident.IncidentNumber</a></td>
+                        <td class="ticket-title"><a asp-action="Details" asp-route-id="@incident.Id">@incident.Title</a></td>
+                        <td><span class="badge @UiClasses.IncidentType(incident.Type)">@incident.Type</span></td>
+                        <td><span class="badge @UiClasses.IncidentSeverity(incident.Severity)">@incident.Severity</span></td>
+                        <td><span class="badge @UiClasses.IncidentStatus(incident.Status)">@incident.Status</span></td>
+                        <td>@(incident.Site?.Name ?? "—")</td>
+                        <td>@(incident.AssignedTo?.FullName ?? "Unassigned")</td>
+                        <td class="text-muted text-sm">@incident.OccurredAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.TotalPages > 1)
+    {
+        <div class="pagination">
+            <div class="page-info">
+                Page @Model.Page of @Model.TotalPages &middot; @Model.TotalCount incident(s)
+            </div>
+            <div class="pagination-controls">
+                <a class="page-btn @(Model.Page <= 1 ? "disabled" : "")" href="@BuildUrl(page: Model.Page - 1)">&laquo; Prev</a>
+                @{
+                    var start = Math.Max(1, Model.Page - 2);
+                    var end = Math.Min(Model.TotalPages, Model.Page + 2);
+                }
+                @for (var p = start; p <= end; p++)
+                {
+                    <a class="page-btn @(p == Model.Page ? "active" : "")" href="@BuildUrl(page: p)">@p</a>
+                }
+                <a class="page-btn @(Model.Page >= Model.TotalPages ? "disabled" : "")" href="@BuildUrl(page: Model.Page + 1)">Next &raquo;</a>
+            </div>
+        </div>
+    }
+</div>

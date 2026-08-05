@@ -1,0 +1,93 @@
+@model IForm.Web.ViewModels.ActionFormViewModel
+@{
+    ViewData["Title"] = "New Action";
+    ViewData["PageTitle"] = "Create Action";
+    ViewData["PageSubtitle"] = "Define a corrective or follow-up action";
+    ViewData["ActiveMenu"] = "actions";
+}
+
+<form asp-action="Create" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Action details</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="Title">Title</label>
+                <input asp-for="Title" class="form-control" autofocus placeholder="Short summary of the action required" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+
+            <div class="form-group">
+                <label asp-for="Description">Description</label>
+                <textarea asp-for="Description" class="form-control" placeholder="What needs to be done, and what does good look like?"></textarea>
+                <span asp-validation-for="Description" class="text-danger"></span>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Priority">Priority</label>
+                    <select asp-for="Priority" asp-items="Model.PriorityOptions" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DueDate">Due date</label>
+                    <input asp-for="DueDate" type="date" class="form-control" />
+                </div>
+            </div>
+
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="AssignedToId">Assign to</label>
+                    <select asp-for="AssignedToId" class="form-control">
+                        @foreach (var user in Model.Users)
+                        {
+                            <option value="@user.Value">@user.Text</option>
+                        }
+                    </select>
+                    <span asp-validation-for="AssignedToId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Status">Status</label>
+                    <select asp-for="Status" asp-items="Model.StatusOptions" class="form-control"></select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card">
+        <div class="card-header"><h2>Link to</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="IncidentId">Incident (optional)</label>
+                    <select asp-for="IncidentId" class="form-control">
+                        <option value="">None</option>
+                        @foreach (var incident in Model.Incidents)
+                        {
+                            <option value="@incident.Value">@incident.Text</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="TicketId">Ticket (optional)</label>
+                    <select asp-for="TicketId" class="form-control">
+                        <option value="">None</option>
+                        @foreach (var ticket in Model.Tickets)
+                        {
+                            <option value="@ticket.Value">@ticket.Text</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Create action</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

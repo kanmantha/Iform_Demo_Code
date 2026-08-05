@@ -1,0 +1,78 @@
+@model List<IForm.Web.ViewModels.UserListViewModel>
+@{
+    ViewData["Title"] = "Users";
+    ViewData["PageTitle"] = "User Management";
+    ViewData["PageSubtitle"] = "Manage users and roles";
+    ViewData["ActiveMenu"] = "users";
+}
+
+@functions {
+    static string Initials(string? name)
+    {
+        if (string.IsNullOrWhiteSpace(name)) return "?";
+        var parts = name.Split(' ', StringSplitOptions.RemoveEmptyEntries);
+        return parts.Length >= 2 ? $"{parts[0][0]}{parts[^1][0]}" : name[..Math.Min(2, name.Length)];
+    }
+}
+
+<div class="card">
+    <div class="card-header">
+        <h2>Users (@Model.Count)</h2>
+        <a class="btn btn-primary btn-sm" asp-action="Create">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <line x1="12" y1="5" x2="12" y2="19"></line><line x1="5" y1="12" x2="19" y2="12"></line>
+            </svg>
+            Add user
+        </a>
+    </div>
+    <div class="table-wrap">
+        <table class="table">
+            <thead>
+                <tr>
+                    <th>User</th>
+                    <th>Department</th>
+                    <th>Job title</th>
+                    <th>Role</th>
+                    <th>Joined</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var item in Model)
+                {
+                    <tr>
+                        <td>
+                            <span class="cell-avatar">
+                                <div class="avatar avatar-sm">@Initials(item.User.FullName)</div>
+                                <span>
+                                    <div style="font-weight: 600;">@item.User.FullName</div>
+                                    <div class="text-muted text-sm">@item.User.Email</div>
+                                </span>
+                            </span>
+                        </td>
+                        <td>@(item.User.Department ?? "—")</td>
+                        <td>@(item.User.JobTitle ?? "—")</td>
+                        <td>
+                            <form asp-action="ChangeRole" method="post" class="inline-form">
+                                <input type="hidden" name="id" value="@item.User.Id" />
+                                <select name="role" class="form-control" style="width: auto; padding: 5px 8px; font-size: 12px;" onchange="this.form.submit()">
+                                    @foreach (var role in new[] { "Admin", "Manager", "User" })
+                                    {
+                                        <option value="@role" selected="@(item.CurrentRole == role)">@role</option>
+                                    }
+                                </select>
+                            </form>
+                        </td>
+                        <td class="text-muted text-sm">@item.User.CreatedAt.ToLocalTime().ToString("MMM dd, yyyy")</td>
+                        <td>
+                            <form asp-action="Delete" method="post" onsubmit="return confirm('Delete user @(item.User.FullName)? Their tickets will be kept.');">
+                                <input type="hidden" name="id" value="@item.User.Id" />
+                                <button type="submit" class="btn btn-danger-outline btn-sm">Delete</button>
+                            </form>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+</div>
