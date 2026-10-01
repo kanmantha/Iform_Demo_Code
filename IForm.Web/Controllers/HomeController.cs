@@ -1,4 +1,5 @@
 using System.Diagnostics;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using IForm.Web.Models;
 
@@ -13,6 +14,12 @@ public class HomeController : Controller
             return RedirectToAction("Index", "Dashboard");
         }
 
+        return View();
+    }
+
+    [Authorize]
+    public IActionResult Home()
+    {
         return View();
     }
 

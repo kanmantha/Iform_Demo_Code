@@ -1,0 +1,136 @@
+@{
+    ViewData["Title"] = "Home";
+    ViewData["PageTitle"] = "Home";
+    ViewData["PageSubtitle"] = "Select a module to get started";
+    ViewData["ActiveMenu"] = "home";
+}
+
+<div class="module-grid">
+    <a class="module-card-link" asp-controller="Tickets" asp-action="Index">
+        <div class="module-card">
+            <div class="module-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
+                    <rect x="9" y="3" width="6" height="4" rx="1"></rect>
+                    <path d="M9 12h6"></path><path d="M9 16h6"></path>
+                </svg>
+            </div>
+            <h3 class="module-name">Tickets</h3>
+            <p class="module-desc">Track every ticket from report through investigation to closure.</p>
+            <span class="module-action">Open</span>
+        </div>
+    </a>
+
+    <a class="module-card-link" asp-controller="Incidents" asp-action="Index">
+        <div class="module-card">
+            <div class="module-icon amber">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M12 9v4"></path><path d="M12 17h.01"></path>
+                    <path d="M10.29 3.86L1.82 18a2 2 0 001.71 3h16.94a2 2 0 001.71-3L13.71 3.86a2 2 0 00-3.42 0z"></path>
+                </svg>
+            </div>
+            <h3 class="module-name">Incidents</h3>
+            <p class="module-desc">Log incidents, near misses, unsafe acts and hazards.</p>
+            <span class="module-action">Open</span>
+        </div>
+    </a>
+
+    <a class="module-card-link" asp-controller="Actions" asp-action="Index">
+        <div class="module-card">
+            <div class="module-icon green">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M9 11l3 3L22 4"></path><path d="M21 12v7a2 2 0 01-2 2H5a2 2 0 01-2-2V5a2 2 0 012-2h11"></path>
+                </svg>
+            </div>
+            <h3 class="module-name">Action Tracker</h3>
+            <p class="module-desc">Assign corrective actions and follow them to completion.</p>
+            <span class="module-action">Open</span>
+        </div>
+    </a>
+
+    <a class="module-card-link" asp-controller="SiteQueries" asp-action="Index">
+        <div class="module-card">
+            <div class="module-icon purple">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
+                    <path d="M8 11h6"></path><path d="M11 8v6"></path>
+                </svg>
+            </div>
+            <h3 class="module-name">Site Queries</h3>
+            <p class="module-desc">Search, resolve and report site queries and defects.</p>
+            <span class="module-action">Open</span>
+        </div>
+    </a>
+
+    <a class="module-card-link" asp-controller="Products" asp-action="Index">
+        <div class="module-card">
+            <div class="module-icon blue">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M21 8l-9-5-9 5 9 5 9-5v8"></path><path d="M3 8v8l9 5 9-5V8"></path>
+                </svg>
+            </div>
+            <h3 class="module-name">Product Lookup</h3>
+            <p class="module-desc">Browse the product catalogue and raise an issue against an item.</p>
+            <span class="module-action">Open</span>
+        </div>
+    </a>
+
+    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+    {
+        <a class="module-card-link" asp-controller="Eot" asp-action="Index">
+            <div class="module-card">
+                <div class="module-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                </div>
+                <h3 class="module-name">EOT Tracker</h3>
+                <p class="module-desc">Manage extension of time claims and their approvals.</p>
+                <span class="module-action">Open</span>
+            </div>
+        </a>
+
+        <a class="module-card-link" asp-controller="Dispatch" asp-action="Index">
+            <div class="module-card">
+                <div class="module-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M1 3h15v13H1z"></path><path d="M16 8h4l3 3v5h-7V8z"></path>
+                        <circle cx="5.5" cy="18.5" r="2.5"></circle><circle cx="18.5" cy="18.5" r="2.5"></circle>
+                    </svg>
+                </div>
+                <h3 class="module-name">Dispatch Tracker</h3>
+                <p class="module-desc">Log and monitor material dispatch to site.</p>
+                <span class="module-action">Open</span>
+            </div>
+        </a>
+
+        <a class="module-card-link" asp-controller="MaterialCertificates" asp-action="Index">
+            <div class="module-card">
+                <div class="module-icon amber">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path>
+                        <polyline points="14 2 14 8 20 8"></polyline>
+                        <path d="M9 13h6"></path><path d="M9 17h6"></path>
+                    </svg>
+                </div>
+                <h3 class="module-name">Mill Test Certificates</h3>
+                <p class="module-desc">Record and retrieve quality certificates for supplied material.</p>
+                <span class="module-action">Open</span>
+            </div>
+        </a>
+
+        <a class="module-card-link" asp-controller="Dashboard" asp-action="Index">
+            <div class="module-card">
+                <div class="module-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <rect x="3" y="3" width="7" height="9" rx="1"></rect><rect x="14" y="3" width="7" height="5" rx="1"></rect>
+                        <rect x="14" y="12" width="7" height="9" rx="1"></rect><rect x="3" y="16" width="7" height="5" rx="1"></rect>
+                    </svg>
+                </div>
+                <h3 class="module-name">Dashboard</h3>
+                <p class="module-desc">KPI cards and charts for leadership visibility.</p>
+                <span class="module-action">Open</span>
+            </div>
+        </a>
+    }
+</div>
