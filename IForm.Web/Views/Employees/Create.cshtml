@@ -1,0 +1,14 @@
+@model IForm.Web.ViewModels.EmployeeFormViewModel
+@{
+    ViewData["Title"] = "Add Employee";
+    ViewData["PageTitle"] = "Add Employee";
+    ViewData["PageSubtitle"] = "Employee code and email must be unique across the directory";
+    ViewData["ActiveMenu"] = "hr-employees";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

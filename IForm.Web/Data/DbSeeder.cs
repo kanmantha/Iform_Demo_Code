@@ -6,6 +6,11 @@ namespace IForm.Web.Data;
 
 public static class DbSeeder
 {
+    /// <summary>Shared by the HR seed so every row lands on a consistent "today".</summary>
+    private static readonly DateTime now = DateTime.UtcNow;
+
+    private static readonly Random rnd = new(97);
+
     public static readonly string AdminRole = "Admin";
     public static readonly string ManagerRole = "Manager";
     public static readonly string UserRole = "User";
@@ -61,7 +66,368 @@ public static class DbSeeder
             await SeedSiteQueriesAsync(context, manager, user1, user2, user3, products);
         }
 
+        await SeedHrAsync(context, admin);
+
         await context.SaveChangesAsync();
+    }
+
+    private static async Task SeedHrAsync(ApplicationDbContext context, AppUser admin)
+    {
+        if (await context.Employees.AnyAsync())
+        {
+            return;
+        }
+
+        var departments = new[]
+        {
+            new Department { Code = "EXEC", Name = "Executive", Description = "Leadership" },
+            new Department { Code = "ENG", Name = "Engineering", Description = "Design and site engineering" },
+            new Department { Code = "QA", Name = "Quality", Description = "Quality assurance and control" },
+            new Department { Code = "SAFETY", Name = "Safety", Description = "Health, safety and environment" },
+            new Department { Code = "OPS", Name = "Operations", Description = "Site and production operations" },
+            new Department { Code = "MAINT", Name = "Maintenance", Description = "Equipment and facilities" },
+            new Department { Code = "HR", Name = "Human Resources", Description = "People and training" },
+            new Department { Code = "FIN", Name = "Finance", Description = "Accounts and payroll" }
+        };
+        context.Departments.AddRange(departments);
+        await context.SaveChangesAsync();
+
+        var byCode = departments.ToDictionary(d => d.Code);
+
+        var employees = new[]
+        {
+            Employee("EMP-001", "Meera", "Krishnan", "exec.admin@iform.app", byCode["EXEC"].Id, "Managing Director"),
+            Employee("EMP-002", "Arjun", "Deshpande", "arjun.d@iform.app", byCode["ENG"].Id, "Head of Engineering"),
+            Employee("EMP-003", "Kavya", "Reddy", "kavya.reddy@iform.app", byCode["HR"].Id, "HR Manager"),
+            Employee("EMP-004", "Rohit", "Shah", "rohit.shah@iform.app", byCode["SAFETY"].Id, "Safety Officer"),
+            Employee("EMP-005", "Neha", "Gupta", "neha.gupta@iform.app", byCode["QA"].Id, "Quality Manager"),
+            Employee("EMP-006", "Imran", "Sheikh", "imran.sheikh@iform.app", byCode["ENG"].Id, "Senior Site Engineer"),
+            Employee("EMP-007", "Divya", "Menon", "divya.menon@iform.app", byCode["OPS"].Id, "Production Supervisor"),
+            Employee("EMP-008", "Suresh", "Pai", "suresh.pai@iform.app", byCode["MAINT"].Id, "Maintenance Engineer"),
+            Employee("EMP-009", "Ananya", "Iyer", "ananya.iyer@iform.app", byCode["FIN"].Id, "Accounts Executive"),
+            Employee("EMP-010", "Vikram", "Singh", "vikram.singh@iform.app", byCode["OPS"].Id, "Site Operator"),
+            Employee("EMP-011", "Pooja", "Nair", "pooja.nair@iform.app", byCode["QA"].Id, "Quality Analyst"),
+            Employee("EMP-012", "Rahul", "Chauhan", "rahul.chauhan@iform.app", byCode["ENG"].Id, "Design Engineer"),
+            Employee("EMP-013", "Fatima", "Begum", "fatima.begum@iform.app", byCode["SAFETY"].Id, "Safety Assistant"),
+            Employee("EMP-014", "Aditya", "Rao", "aditya.rao@iform.app", byCode["OPS"].Id, "Store Supervisor"),
+            Employee("EMP-015", "Lakshmi", "Pillai", "lakshmi.pillai@iform.app", byCode["HR"].Id, "HR Executive")
+        };
+        context.Employees.AddRange(employees);
+        await context.SaveChangesAsync();
+
+        // Reporting lines, set after insert because the FKs need real ids.
+        employees[6].ManagerId = employees[2].Id;
+        employees[5].ManagerId = employees[1].Id;
+        employees[11].ManagerId = employees[1].Id;
+        employees[9].ManagerId = employees[6].Id;
+        employees[13].ManagerId = employees[6].Id;
+        employees[10].ManagerId = employees[4].Id;
+        employees[12].ManagerId = employees[3].Id;
+        employees[7].ManagerId = employees[6].Id;
+        employees[8].ManagerId = employees[4].Id;
+        employees[13].ManagerId = employees[2].Id;
+        employees[14].ManagerId = employees[1].Id;
+        await context.SaveChangesAsync();
+
+        var now = DateTime.UtcNow;
+
+        // Opening entitlements. One grant per leave type per employee so the ledger
+        // balance has a sensible starting point instead of zero.
+        foreach (var employee in employees)
+        {
+            context.LeaveLedgerEntries.AddRange(
+                new LeaveLedgerEntry
+                {
+                    EmployeeId = employee.Id,
+                    LeaveType = LeaveType.Casual,
+                    Days = 12m,
+                    Reason = "Casual leave entitlement",
+                    CreatedAt = now.AddDays(-180)
+                },
+                new LeaveLedgerEntry
+                {
+                    EmployeeId = employee.Id,
+                    LeaveType = LeaveType.Earned,
+                    Days = 15m,
+                    Reason = "Earned leave entitlement",
+                    CreatedAt = now.AddDays(-180)
+                },
+                new LeaveLedgerEntry
+                {
+                    EmployeeId = employee.Id,
+                    LeaveType = LeaveType.Sick,
+                    Days = 10m,
+                    Reason = "Sick leave entitlement",
+                    CreatedAt = now.AddDays(-180)
+                });
+        }
+
+        var leaveSeed = new (int EmployeeIndex, LeaveType Type, int StartOffset, decimal Days, string Reason, LeaveStatus Status)[]
+        {
+            (5, LeaveType.Casual, -20, 2m, "Family function at home", LeaveStatus.Approved),
+            (6, LeaveType.Sick, -14, 3m, "Viral fever, advised rest by doctor", LeaveStatus.Approved),
+            (7, LeaveType.Casual, -9, 1m, "Personal work", LeaveStatus.Approved),
+            (8, LeaveType.Earned, -30, 4m, "Planned family holiday", LeaveStatus.Approved),
+            (9, LeaveType.Casual, -4, 1m, "Medical appointment", LeaveStatus.Pending),
+            (10, LeaveType.Earned, -2, 2m, "Long weekend trip", LeaveStatus.Pending),
+            (11, LeaveType.Sick, -1, 5m, "Recovering from dengue", LeaveStatus.Pending),
+            (12, LeaveType.Casual, -6, 1m, "Child school function", LeaveStatus.Rejected),
+            (13, LeaveType.Casual, -18, 3m, "Attended a cousin's wedding", LeaveStatus.Approved),
+            (4, LeaveType.Earned, -25, 2m, "Short break with family", LeaveStatus.Approved)
+        };
+
+        int leaveCount = 1;
+        foreach (var (employeeIndex, type, startOffset, days, reason, status) in leaveSeed)
+        {
+            var start = NextWorkingDay(now.AddDays(startOffset));
+            var request = new LeaveRequest
+            {
+                RequestNumber = $"LV-{leaveCount++:D5}",
+                EmployeeId = employees[employeeIndex].Id,
+                LeaveType = type,
+                StartDate = start,
+                EndDate = EndDateForWorkingDays(start, days),
+                Days = days,
+                Reason = reason,
+                Status = status,
+                CreatedAt = start.AddDays(-3),
+                DecidedAt = status == LeaveStatus.Pending ? null : start.AddDays(-2),
+                DecidedById = status == LeaveStatus.Pending ? null : admin.Id,
+                DecisionNote = status == LeaveStatus.Rejected ? "Peak production week, please reschedule." : null
+            };
+
+            context.LeaveRequests.Add(request);
+
+            if (status == LeaveStatus.Approved)
+            {
+                context.LeaveLedgerEntries.Add(new LeaveLedgerEntry
+                {
+                    EmployeeId = employees[employeeIndex].Id,
+                    LeaveType = type,
+                    Days = -days,
+                    Reason = $"Approved leave {request.RequestNumber}",
+                    LeaveRequest = request,
+                    CreatedAt = start.AddDays(-2)
+                });
+            }
+        }
+
+        int claimCount = 1;
+        var claimSeed = new (int EmployeeIndex, string Category, decimal Amount, string Description, ExpenseStatus Status)[]
+        {
+            (5, "Travel", 1850.50m, "Taxi fare for Site C inspection", ExpenseStatus.Approved),
+            (7, "Meals", 420.00m, "Team lunch after shutdown", ExpenseStatus.Submitted),
+            (9, "Travel", 3200.00m, "Sleeper train to client site", ExpenseStatus.Submitted),
+            (11, "Stationery", 640.75m, "Torque wrench calibration kit", ExpenseStatus.Rejected),
+            (13, "Accommodation", 2750.00m, "Two nights near project site", ExpenseStatus.Reimbursed),
+            (6, "Communication", 899.00m, "Monthly mobile recharge", ExpenseStatus.Approved),
+            (2, "Training", 4500.00m, "Safety leadership workshop fee", ExpenseStatus.Reimbursed),
+            (12, "Travel", 1250.00m, "Airport transfer and tolls", ExpenseStatus.Submitted)
+        };
+
+        foreach (var (employeeIndex, category, amount, description, status) in claimSeed)
+        {
+            var claim = new ExpenseClaim
+            {
+                ClaimNumber = $"EX-{claimCount++:D5}",
+                EmployeeId = employees[employeeIndex].Id,
+                Category = category,
+                Description = description,
+                Amount = amount,
+                Currency = "INR",
+                ExpenseDate = now.AddDays(-rnd.Next(1, 40)).Date,
+                Status = status,
+                CreatedAt = now.AddDays(-rnd.Next(2, 45)),
+                DecidedAt = status is ExpenseStatus.Submitted ? null : now.AddDays(-1),
+                DecidedById = status is ExpenseStatus.Submitted ? null : admin.Id,
+                DecisionNote = status == ExpenseStatus.Rejected ? "Item not on the approved purchase list; please attach the indents." : null
+            };
+
+            context.ExpenseClaims.Add(claim);
+        }
+
+        var attendanceSeed = new (int EmployeeIndex, int DaysAgo, decimal Hours, AttendanceStatus Status, string? Notes)[]
+        {
+            (5, 0, 9.5m, AttendanceStatus.Present, null),
+            (6, 0, 8.25m, AttendanceStatus.Present, null),
+            (7, 0, 4m, AttendanceStatus.HalfDay, "Left early for a doctor visit"),
+            (8, 0, 0m, AttendanceStatus.Absent, "Absent without notice"),
+            (9, 1, 10m, AttendanceStatus.Present, null),
+            (10, 1, 8m, AttendanceStatus.Present, null),
+            (11, 1, 6.5m, AttendanceStatus.Present, null),
+            (12, 2, 9m, AttendanceStatus.Present, null),
+            (13, 2, 0m, AttendanceStatus.Absent, "Absent without intimation"),
+            (14, 2, 7.75m, AttendanceStatus.Present, null),
+            (5, 3, 8.5m, AttendanceStatus.Present, null),
+            (6, 3, 3.5m, AttendanceStatus.HalfDay, "Half day, travel delay"),
+            (7, 4, 9m, AttendanceStatus.Present, null),
+            (8, 4, 8m, AttendanceStatus.Present, null)
+        };
+
+        foreach (var (employeeIndex, daysAgo, hours, status, notes) in attendanceSeed)
+        {
+            var date = NextWorkingDay(now.AddDays(-daysAgo));
+            context.AttendanceRecords.Add(new AttendanceRecord
+            {
+                EmployeeId = employees[employeeIndex].Id,
+                Date = date,
+                CheckIn = hours == 0m ? null : date.AddHours(9),
+                CheckOut = hours == 0m ? null : date.AddHours(9).AddHours((double)hours),
+                HoursWorked = hours,
+                Status = status,
+                Notes = notes,
+                CreatedAt = date.AddHours(18)
+            });
+        }
+
+        var templates = new[]
+        {
+            new OnboardingTemplate
+            {
+                Name = "Site Engineer",
+                Description = "Standard checklist for engineering hires joining a site",
+                CreatedAt = now.AddDays(-60),
+                TaskTemplates =
+                {
+                    new OnboardingTaskTemplate { Title = "Collect ID and address proofs", DueDayOffset = 1, DisplayOrder = 1 },
+                    new OnboardingTaskTemplate { Title = "Complete safety induction", DueDayOffset = 2, DisplayOrder = 2 },
+                    new OnboardingTaskTemplate { Title = "Issue PPE and site access card", DueDayOffset = 3, DisplayOrder = 3 },
+                    new OnboardingTaskTemplate { Title = "Assign a buddy for the first week", DueDayOffset = 5, DisplayOrder = 4 },
+                    new OnboardingTaskTemplate { Title = "Sign off on site SOPs", DueDayOffset = 7, DisplayOrder = 5 }
+                }
+            },
+            new OnboardingTemplate
+            {
+                Name = "Office / Admin",
+                Description = "Checklist for head office and support roles",
+                CreatedAt = now.AddDays(-60),
+                TaskTemplates =
+                {
+                    new OnboardingTaskTemplate { Title = "Collect ID and tax proofs", DueDayOffset = 1, DisplayOrder = 1 },
+                    new OnboardingTaskTemplate { Title = "Set up payroll and bank details", DueDayOffset = 3, DisplayOrder = 2 },
+                    new OnboardingTaskTemplate { Title = "Grant system access", DueDayOffset = 5, DisplayOrder = 3 },
+                    new OnboardingTaskTemplate { Title = "Allocate workstation and email", DueDayOffset = 5, DisplayOrder = 4 }
+                }
+            }
+        };
+        context.OnboardingTemplates.AddRange(templates);
+        await context.SaveChangesAsync();
+
+        var engineerOnboarding = new EmployeeOnboarding
+        {
+            EmployeeId = employees[12].Id,
+            OnboardingTemplateId = templates[0].Id,
+            StartedAt = now.AddDays(-9)
+        };
+
+        var engineerTasks = new[]
+        {
+            ("Collect ID and address proofs", 1, true),
+            ("Complete safety induction", 2, true),
+            ("Issue PPE and site access card", 3, true),
+            ("Assign a buddy for the first week", 5, false),
+            ("Sign off on site SOPs", 14, false)
+        };
+
+        var order = 1;
+        foreach (var (title, offset, completed) in engineerTasks)
+        {
+            engineerOnboarding.Tasks.Add(new EmployeeOnboardingTask
+            {
+                Title = title,
+                DueDate = now.AddDays(-9).Date.AddDays(offset),
+                DisplayOrder = order++,
+                IsCompleted = completed,
+                CompletedAt = completed ? now.AddDays(-9).AddHours(order) : null,
+                CompletedById = completed ? admin.Id : null
+            });
+        }
+
+        var adminOnboarding = new EmployeeOnboarding
+        {
+            EmployeeId = employees[14].Id,
+            OnboardingTemplateId = templates[1].Id,
+            StartedAt = now.AddDays(-12)
+        };
+
+        var adminTasks = new[]
+        {
+            ("Collect ID and tax proofs", 1, true),
+            ("Set up payroll and bank details", 3, true),
+            ("Grant system access", 5, true),
+            ("Allocate workstation and email", 5, false)
+        };
+
+        order = 1;
+        foreach (var (title, offset, completed) in adminTasks)
+        {
+            adminOnboarding.Tasks.Add(new EmployeeOnboardingTask
+            {
+                Title = title,
+                DueDate = now.AddDays(-12).Date.AddDays(offset),
+                DisplayOrder = order++,
+                IsCompleted = completed,
+                CompletedAt = completed ? now.AddDays(-12).AddHours(order) : null,
+                CompletedById = completed ? admin.Id : null
+            });
+        }
+
+        context.EmployeeOnboardings.AddRange(engineerOnboarding, adminOnboarding);
+    }
+
+    private static Employee Employee(
+        string code,
+        string firstName,
+        string lastName,
+        string email,
+        int departmentId,
+        string jobTitle)
+        => new()
+        {
+            EmployeeCode = code,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = email,
+            DepartmentId = departmentId,
+            JobTitle = jobTitle,
+            Status = EmploymentStatus.Active,
+            DateJoined = now.AddDays(-rnd.Next(40, 900)),
+            EmergencyContactName = "Emergency Contact",
+            EmergencyContactPhone = "+91 90000 00000",
+            CreatedAt = now.AddDays(-rnd.Next(40, 900))
+        };
+
+    /// <summary>Skips to the next Monday-to-Friday day so seeded leave lands on working days.</summary>
+    private static DateTime NextWorkingDay(DateTime date)
+    {
+        while (date.DayOfWeek is DayOfWeek.Saturday or DayOfWeek.Sunday)
+        {
+            date = date.AddDays(1);
+        }
+
+        return date.Date;
+    }
+
+    /// <summary>
+    /// Returns the end date of a leave span that covers exactly <paramref name="workingDays"/>
+    /// working days starting at <paramref name="start"/>, so StartDate/EndDate always agree with
+    /// the Days value the way LeaveCalculator would count them.
+    /// </summary>
+    private static DateTime EndDateForWorkingDays(DateTime start, decimal workingDays)
+    {
+        var end = start;
+        var remaining = (int)Math.Round(workingDays, MidpointRounding.AwayFromZero) - 1;
+
+        while (remaining > 0)
+        {
+            end = end.AddDays(1);
+            if (end.DayOfWeek is not (DayOfWeek.Saturday or DayOfWeek.Sunday))
+            {
+                remaining--;
+            }
+        }
+
+        return end;
     }
 
     private static async Task SeedRolesAsync(RoleManager<IdentityRole> roleManager)

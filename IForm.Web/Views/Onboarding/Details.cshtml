@@ -1,0 +1,60 @@
+@model OnboardingDetailViewModel
+@{
+    var onboarding = Model.Onboarding;
+    var done = onboarding.Tasks.Count(t => t.IsCompleted);
+    var today = DateTime.UtcNow.Date;
+    ViewData["Title"] = $"Onboarding - {onboarding.Employee?.FullName}";
+    ViewData["PageTitle"] = onboarding.Employee?.FullName ?? "Onboarding";
+    ViewData["PageSubtitle"] = onboarding.OnboardingTemplate?.Name ?? string.Empty;
+    ViewData["ActiveMenu"] = "hr-onboarding";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Onboarding</a>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card"><span>Started</span><strong>@onboarding.StartedAt.ToString("dd MMM yyyy")</strong></div>
+    <div class="stat-card"><span>Tasks done</span><strong>@done / @onboarding.Tasks.Count</strong></div>
+    <div class="stat-card"><span>Status</span><strong>@(onboarding.CompletedAt is null ? "In progress" : "Completed")</strong></div>
+</div>
+
+<div class="card">
+    <div class="card-header"><h2>Checklist</h2></div>
+    @if (onboarding.Tasks.Count == 0)
+    {
+        <div class="card-body text-muted">This template had no tasks.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Done</th><th>Task</th><th>Due</th><th>Completed</th></tr></thead>
+                <tbody>
+                    @foreach (var task in onboarding.Tasks.OrderBy(t => t.DisplayOrder))
+                    {
+                        var overdue = !task.IsCompleted && task.DueDate.Date < today;
+                        <tr>
+                            <td>
+                                <form method="post" asp-action="ToggleTask" asp-route-id="@task.Id">
+                                    <button type="submit" class="btn btn-sm @(task.IsCompleted ? "btn-outline-success" : "btn-outline")">
+                                        @(task.IsCompleted ? "Completed" : "Mark done")
+                                    </button>
+                                </form>
+                            </td>
+                            <td>@task.Title</td>
+                            <td>
+                                @task.DueDate.ToString("dd MMM yyyy")
+                                @if (overdue)
+                                {
+                                    <span class="status-chip status-absent">Overdue</span>
+                                }
+                            </td>
+                            <td class="small">@(task.CompletedAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -47,20 +47,23 @@
         </div>
     </a>
 
-    <a class="module-card-link" asp-controller="Home" asp-action="UnderConstruction" asp-route-module="HR">
-        <div class="module-card">
-            <div class="module-icon purple">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
-                    <circle cx="9" cy="7" r="4"></circle>
-                    <path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path>
-                </svg>
+    @if (User.IsInRole("Admin") || User.IsInRole("Manager"))
+    {
+        <a class="module-card-link" asp-controller="Employees" asp-action="Index">
+            <div class="module-card">
+                <div class="module-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path>
+                    </svg>
+                </div>
+                <h3 class="module-name">HR</h3>
+                <p class="module-desc">Employees, leave, expenses, attendance and onboarding.</p>
+                <span class="module-action">Open</span>
             </div>
-            <h3 class="module-name">HR</h3>
-            <p class="module-desc">Manage staff records, attendance and personnel matters.</p>
-            <span class="module-action">Open</span>
-        </div>
-    </a>
+        </a>
+    }
 
     <a class="module-card-link" asp-controller="Tickets" asp-action="Index">
         <div class="module-card">

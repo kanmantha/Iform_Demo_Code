@@ -1,0 +1,119 @@
+@model IForm.Web.ViewModels.EmployeeFormViewModel
+@{
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+}
+
+<form asp-action="@formAction" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    @if (Model.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Identity</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmployeeCode"></label>
+                    <input asp-for="EmployeeCode" class="form-control" autofocus placeholder="e.g. EMP-001" />
+                    <span asp-validation-for="EmployeeCode" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FirstName"></label>
+                    <input asp-for="FirstName" class="form-control" />
+                    <span asp-validation-for="FirstName" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="LastName"></label>
+                    <input asp-for="LastName" class="form-control" />
+                    <span asp-validation-for="LastName" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Email"></label>
+                    <input asp-for="Email" class="form-control" />
+                    <span asp-validation-for="Email" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Phone"></label>
+                    <input asp-for="Phone" class="form-control" />
+                    <span asp-validation-for="Phone" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateOfBirth"></label>
+                    <input asp-for="DateOfBirth" type="date" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Role &amp; reporting</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="DepartmentId">Department</label>
+                    <select asp-for="DepartmentId" class="form-control">
+                        <option value="">Unassigned</option>
+                        @foreach (var department in Model.Departments)
+                        {
+                            <option value="@department.Id">@department.Name</option>
+                        }
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="JobTitle"></label>
+                    <input asp-for="JobTitle" class="form-control" placeholder="e.g. Site Engineer" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="ManagerId">Reports to</label>
+                    <select asp-for="ManagerId" class="form-control">
+                        <option value="">No manager</option>
+                        @foreach (var manager in Model.Managers)
+                        {
+                            <option value="@manager.Id">@manager.FullName@(manager.JobTitle is null ? "" : $" ({manager.JobTitle})")</option>
+                        }
+                    </select>
+                    <span asp-validation-for="ManagerId" class="text-danger"></span>
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Status"></label>
+                    <select asp-for="Status" asp-items="Html.GetEnumSelectList<EmploymentStatus>()" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="DateJoined"></label>
+                    <input asp-for="DateJoined" type="date" class="form-control" />
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Contact</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmergencyContactName"></label>
+                    <input asp-for="EmergencyContactName" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="EmergencyContactPhone"></label>
+                    <input asp-for="EmergencyContactPhone" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group">
+                <label asp-for="Address"></label>
+                <textarea asp-for="Address" class="form-control" rows="2"></textarea>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Create Employee")</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>

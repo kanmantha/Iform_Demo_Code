@@ -1,0 +1,68 @@
+@model Employee
+@{
+    ViewData["Title"] = Model.FullName;
+    ViewData["PageTitle"] = Model.FullName;
+    ViewData["PageSubtitle"] = $"{Model.EmployeeCode} - {(Model.JobTitle ?? "No job title")}";
+    ViewData["ActiveMenu"] = "hr-employees";
+    var directReports = ViewBag.DirectReports as List<Employee> ?? new List<Employee>();
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Directory</a>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Profile</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Employee code</span><strong>@Model.EmployeeCode</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>Email</span><strong>@Model.Email</strong></div>
+            <div><span>Phone</span><strong>@(Model.Phone ?? "-")</strong></div>
+            <div><span>Department</span><strong>@(Model.Department?.Name ?? "Unassigned")</strong></div>
+            <div><span>Job title</span><strong>@(Model.JobTitle ?? "-")</strong></div>
+            <div><span>Reports to</span><strong>@(Model.Manager?.FullName ?? "-")</strong></div>
+            <div><span>Date joined</span><strong>@(Model.DateJoined?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>Date of birth</span><strong>@(Model.DateOfBirth?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Emergency contact &amp; address</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Contact name</span><strong>@(Model.EmergencyContactName ?? "-")</strong></div>
+            <div><span>Contact phone</span><strong>@(Model.EmergencyContactPhone ?? "-")</strong></div>
+        </div>
+        <p class="mt-2 mb-0"><span class="detail-label">Address</span><br />@(Model.Address ?? "-")</p>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Direct reports (@directReports.Count)</h2></div>
+    @if (directReports.Count == 0)
+    {
+        <div class="card-body text-muted">Nobody reports to this employee.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead><tr><th>Code</th><th>Name</th><th>Job title</th><th>Status</th></tr></thead>
+                <tbody>
+                    @foreach (var report in directReports)
+                    {
+                        <tr>
+                            <td><code>@report.EmployeeCode</code></td>
+                            <td><a asp-action="Details" asp-route-id="@report.Id">@report.FullName</a></td>
+                            <td>@(report.JobTitle ?? "-")</td>
+                            <td><span class="status-chip status-@report.Status.ToString().ToLowerInvariant()">@report.Status</span></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

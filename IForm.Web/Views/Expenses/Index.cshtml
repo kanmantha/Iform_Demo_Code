@@ -1,0 +1,104 @@
+@model ExpenseListViewModel
+@{
+    ViewData["Title"] = "Expense Claims";
+    ViewData["PageTitle"] = "Expense Claims";
+    ViewData["PageSubtitle"] = "Approve claims, then mark them reimbursed once paid";
+    ViewData["ActiveMenu"] = "hr-expenses";
+}
+
+<div class="page-actions">
+    <a asp-action="Create" class="btn btn-primary">Submit Claim</a>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card"><span>Total claims</span><strong>@Model.TotalCount</strong></div>
+    <div class="stat-card"><span>Submitted</span><strong>@Model.PendingCount</strong></div>
+    <div class="stat-card"><span>Approved</span><strong>@Model.ApprovedCount</strong></div>
+    <div class="stat-card"><span>Rejected</span><strong>@Model.RejectedCount</strong></div>
+    <div class="stat-card"><span>Reimbursed value</span><strong>@Model.ReimbursedTotal.ToString("0.##")</strong></div>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-2">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<ExpenseStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="employeeId">Employee</label>
+            <select id="employeeId" name="employeeId" class="form-control">
+                <option value="">All employees</option>
+                @foreach (var employee in Model.Employees)
+                {
+                    <option value="@employee.Id" selected="@(Model.EmployeeId == employee.Id)">@employee.FullName</option>
+                }
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-outline">Apply</button>
+            <a asp-action="Index" class="btn btn-outline">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Claims.Count == 0)
+    {
+        <div class="card-body text-muted">No expense claims match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Claim</th>
+                        <th>Employee</th>
+                        <th>Category</th>
+                        <th>Date</th>
+                        <th>Amount</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var claim in Model.Claims)
+                    {
+                        <tr>
+                            <td><code>@claim.ClaimNumber</code></td>
+                            <td>@claim.Employee?.FullName</td>
+                            <td>@claim.Category</td>
+                            <td>@claim.ExpenseDate.ToString("dd MMM yyyy")</td>
+                            <td>@claim.Currency @claim.Amount.ToString("0.##")</td>
+                            <td><span class="status-chip status-@claim.Status.ToString().ToLowerInvariant()">@claim.Status</span></td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@claim.Id" class="btn btn-sm btn-outline">Review</a>
+                                @if (claim.Status == ExpenseStatus.Submitted)
+                                {
+                                    <form method="post" asp-action="Approve" asp-route-id="@claim.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-primary">Approve</button>
+                                    </form>
+                                    <form method="post" asp-action="Reject" asp-route-id="@claim.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                                    </form>
+                                }
+                                else if (claim.Status == ExpenseStatus.Approved)
+                                {
+                                    <form method="post" asp-action="MarkReimbursed" asp-route-id="@claim.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline">Mark Reimbursed</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

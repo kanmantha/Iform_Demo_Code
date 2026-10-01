@@ -1,0 +1,86 @@
+@model LeaveDetailViewModel
+@{
+    var request = Model.Request;
+    ViewData["Title"] = request.RequestNumber;
+    ViewData["PageTitle"] = $"Leave Request {request.RequestNumber}";
+    ViewData["PageSubtitle"] = request.Employee?.FullName ?? string.Empty;
+    ViewData["ActiveMenu"] = "hr-leave";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Leave</a>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Request</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Employee</span><strong>@(request.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Type</span><strong>@request.LeaveType</strong></div>
+            <div><span>From</span><strong>@request.StartDate.ToString("dd MMM yyyy")</strong></div>
+            <div><span>To</span><strong>@request.EndDate.ToString("dd MMM yyyy")</strong></div>
+            <div><span>Working days</span><strong>@request.Days.ToString("0.##")</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@request.Status.ToString().ToLowerInvariant()">@request.Status</span></strong></div>
+            <div><span>Balance for this type</span><strong>@Model.BalanceBeforeDecision.ToString("0.##") day(s)</strong></div>
+            <div><span>Submitted</span><strong>@request.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+        </div>
+        <p class="mt-2 mb-0"><span class="detail-label">Reason</span><br />@request.Reason</p>
+        @if (!string.IsNullOrWhiteSpace(request.DecisionNote))
+        {
+            <p class="mt-2 mb-0"><span class="detail-label">Decision note</span><br />@request.DecisionNote</p>
+        }
+        @if (request.DecidedAt.HasValue)
+        {
+            <p class="text-muted small mt-2 mb-0">Decided @request.DecidedAt.Value.ToString("dd MMM yyyy HH:mm") by @request.DecidedById</p>
+        }
+    </div>
+</div>
+
+@if (request.Status == LeaveStatus.Pending)
+{
+    <div class="card mb-2">
+        <div class="card-header"><h2>Decision</h2></div>
+        <div class="card-body">
+            <p class="text-muted">
+                Approving deducts @request.Days.ToString("0.##") day(s) from the balance.
+                Approval is refused if the balance is short or the range overlaps existing approved leave.
+            </p>
+            <div class="form-actions">
+                <form method="post" asp-action="Approve" asp-route-id="@request.Id" class="d-inline">
+                    <button type="submit" class="btn btn-primary">Approve</button>
+                </form>
+                <form method="post" asp-action="Reject" asp-route-id="@request.Id" class="d-inline">
+                    <input type="text" name="note" class="form-control d-inline-block" style="width: 320px;" placeholder="Reason for rejection (optional)" />
+                    <button type="submit" class="btn btn-outline-danger">Reject</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Recent ledger for @request.Employee?.FullName</h2></div>
+    @if (Model.RecentLedger.Count == 0)
+    {
+        <div class="card-body text-muted">No ledger entries yet, so the balance is zero.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead><tr><th>Date</th><th>Type</th><th>Days</th><th>Reason</th></tr></thead>
+                <tbody>
+                    @foreach (var row in Model.RecentLedger)
+                    {
+                        <tr>
+                            <td>@row.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td>@row.LeaveType</td>
+                            <td class="@(row.Days < 0 ? "text-danger" : "text-success")">@row.Days.ToString("0.##")</td>
+                            <td>@row.Reason</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

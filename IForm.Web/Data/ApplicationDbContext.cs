@@ -41,6 +41,26 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
 
     public DbSet<MaterialCertificate> MaterialCertificates => Set<MaterialCertificate>();
 
+    public DbSet<Employee> Employees => Set<Employee>();
+
+    public DbSet<Department> Departments => Set<Department>();
+
+    public DbSet<LeaveRequest> LeaveRequests => Set<LeaveRequest>();
+
+    public DbSet<LeaveLedgerEntry> LeaveLedgerEntries => Set<LeaveLedgerEntry>();
+
+    public DbSet<ExpenseClaim> ExpenseClaims => Set<ExpenseClaim>();
+
+    public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
+
+    public DbSet<OnboardingTemplate> OnboardingTemplates => Set<OnboardingTemplate>();
+
+    public DbSet<OnboardingTaskTemplate> OnboardingTaskTemplates => Set<OnboardingTaskTemplate>();
+
+    public DbSet<EmployeeOnboarding> EmployeeOnboardings => Set<EmployeeOnboarding>();
+
+    public DbSet<EmployeeOnboardingTask> EmployeeOnboardingTasks => Set<EmployeeOnboardingTask>();
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);
@@ -256,6 +276,120 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
             e.HasIndex(c => c.CertificateNumber).IsUnique();
             e.HasIndex(c => c.Supplier);
             e.HasIndex(c => c.CreatedAt);
+        });
+
+        builder.Entity<Department>(e =>
+        {
+            e.HasIndex(d => d.Code).IsUnique();
+        });
+
+        builder.Entity<Employee>(e =>
+        {
+            e.HasOne(x => x.Department)
+                .WithMany(d => d.Employees)
+                .HasForeignKey(x => x.DepartmentId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            // Restrict rather than cascade: deleting a manager must not silently
+            // delete the people reporting to them.
+            e.HasOne(x => x.Manager)
+                .WithMany(x => x.DirectReports)
+                .HasForeignKey(x => x.ManagerId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(x => x.EmployeeCode).IsUnique();
+            e.HasIndex(x => x.Email).IsUnique();
+            e.HasIndex(x => x.LastName);
+            e.HasIndex(x => x.Status);
+        });
+
+        builder.Entity<LeaveRequest>(e =>
+        {
+            e.HasOne(r => r.Employee)
+                .WithMany()
+                .HasForeignKey(r => r.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(r => r.RequestNumber).IsUnique();
+            e.HasIndex(r => r.Status);
+            e.HasIndex(r => new { r.EmployeeId, r.StartDate });
+        });
+
+        builder.Entity<LeaveLedgerEntry>(e =>
+        {
+            e.HasOne(l => l.Employee)
+                .WithMany()
+                .HasForeignKey(l => l.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // Deleting the request that consumed the days would leave the ledger
+            // unbalanced, so keep the entry and the reference is cleared instead.
+            e.HasOne(l => l.LeaveRequest)
+                .WithMany()
+                .HasForeignKey(l => l.LeaveRequestId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            e.HasIndex(l => new { l.EmployeeId, l.LeaveType });
+        });
+
+        builder.Entity<ExpenseClaim>(e =>
+        {
+            e.HasOne(c => c.Employee)
+                .WithMany()
+                .HasForeignKey(c => c.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasIndex(c => c.ClaimNumber).IsUnique();
+            e.HasIndex(c => c.Status);
+            e.HasIndex(c => new { c.EmployeeId, c.Status });
+        });
+
+        builder.Entity<AttendanceRecord>(e =>
+        {
+            e.HasOne(a => a.Employee)
+                .WithMany()
+                .HasForeignKey(a => a.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            // One record per employee per day, enforced by the database.
+            e.HasIndex(a => new { a.EmployeeId, a.Date }).IsUnique();
+            e.HasIndex(a => a.Date);
+        });
+
+        builder.Entity<OnboardingTemplate>(e =>
+        {
+            e.HasIndex(t => t.Name).IsUnique();
+        });
+
+        builder.Entity<OnboardingTaskTemplate>(e =>
+        {
+            e.HasOne(t => t.OnboardingTemplate)
+                .WithMany(x => x.TaskTemplates)
+                .HasForeignKey(t => t.OnboardingTemplateId)
+                .OnDelete(DeleteBehavior.Cascade);
+        });
+
+        builder.Entity<EmployeeOnboarding>(e =>
+        {
+            e.HasOne(o => o.Employee)
+                .WithMany()
+                .HasForeignKey(o => o.EmployeeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            e.HasOne(o => o.OnboardingTemplate)
+                .WithMany()
+                .HasForeignKey(o => o.OnboardingTemplateId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            e.HasIndex(o => new { o.EmployeeId, o.OnboardingTemplateId }).IsUnique();
+        });
+
+        builder.Entity<EmployeeOnboardingTask>(e =>
+        {
+            e.HasOne(t => t.EmployeeOnboarding)
+                .WithMany(o => o.Tasks)
+                .HasForeignKey(t => t.EmployeeOnboardingId)
+                .OnDelete(DeleteBehavior.Cascade);
         });
     }
 }

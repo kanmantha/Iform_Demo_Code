@@ -1,0 +1,66 @@
+@model ExpenseClaim
+@{
+    ViewData["Title"] = $"Claim {Model.ClaimNumber}";
+    ViewData["PageTitle"] = $"Claim {Model.ClaimNumber}";
+    ViewData["PageSubtitle"] = Model.Employee?.FullName ?? string.Empty;
+    ViewData["ActiveMenu"] = "hr-expenses";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Claims</a>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Claim</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Employee</span><strong>@(Model.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Category</span><strong>@Model.Category</strong></div>
+            <div><span>Expense date</span><strong>@Model.ExpenseDate.ToString("dd MMM yyyy")</strong></div>
+            <div><span>Amount</span><strong>@Model.Currency @Model.Amount.ToString("0.##")</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>Submitted</span><strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+        </div>
+        @if (!string.IsNullOrWhiteSpace(Model.Description))
+        {
+            <p class="mt-2 mb-0"><span class="detail-label">Description</span><br />@Model.Description</p>
+        }
+        @if (!string.IsNullOrWhiteSpace(Model.DecisionNote))
+        {
+            <p class="mt-2 mb-0"><span class="detail-label">Decision note</span><br />@Model.DecisionNote</p>
+        }
+        @if (Model.DecidedAt.HasValue)
+        {
+            <p class="text-muted small mt-2 mb-0">Decided @Model.DecidedAt.Value.ToString("dd MMM yyyy HH:mm") by @Model.DecidedById</p>
+        }
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Decision</h2></div>
+    <div class="card-body">
+        @if (Model.Status == ExpenseStatus.Submitted)
+        {
+            <div class="form-actions">
+                <form method="post" asp-action="Approve" asp-route-id="@Model.Id" class="d-inline">
+                    <button type="submit" class="btn btn-primary">Approve</button>
+                </form>
+                <form method="post" asp-action="Reject" asp-route-id="@Model.Id" class="d-inline">
+                    <input type="text" name="note" class="form-control d-inline-block" style="width: 320px;" placeholder="Reason for rejection (optional)" />
+                    <button type="submit" class="btn btn-outline-danger">Reject</button>
+                </form>
+            </div>
+        }
+        else if (Model.Status == ExpenseStatus.Approved)
+        {
+            <p class="text-muted">Approved and awaiting payment.</p>
+            <form method="post" asp-action="MarkReimbursed" asp-route-id="@Model.Id">
+                <button type="submit" class="btn btn-primary">Mark Reimbursed</button>
+            </form>
+        }
+        else
+        {
+            <p class="text-muted mb-0">No action is available while this claim is @Model.Status.ToString().ToLowerInvariant().</p>
+        }
+    </div>
+</div>

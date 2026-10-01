@@ -1,0 +1,109 @@
+@model LeaveListViewModel
+@{
+    ViewData["Title"] = "Leave Management";
+    ViewData["PageTitle"] = "Leave Management";
+    ViewData["PageSubtitle"] = "Approve requests; balances are the sum of each employee's ledger";
+    ViewData["ActiveMenu"] = "hr-leave";
+}
+
+<div class="page-actions">
+    <a asp-action="Create" class="btn btn-primary">Request Leave</a>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card"><span>Total requests</span><strong>@Model.TotalCount</strong></div>
+    <div class="stat-card"><span>Pending</span><strong>@Model.PendingCount</strong></div>
+    <div class="stat-card"><span>Approved</span><strong>@Model.ApprovedCount</strong></div>
+    <div class="stat-card"><span>Rejected</span><strong>@Model.RejectedCount</strong></div>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-2">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<LeaveStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="leaveType">Leave type</label>
+            <select id="leaveType" name="leaveType" class="form-control">
+                <option value="">Any type</option>
+                @foreach (var leaveType in Enum.GetValues<LeaveType>())
+                {
+                    <option value="@leaveType" selected="@(Model.LeaveType == leaveType)">@leaveType</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="employeeId">Employee</label>
+            <select id="employeeId" name="employeeId" class="form-control">
+                <option value="">All employees</option>
+                @foreach (var employee in Model.Employees)
+                {
+                    <option value="@employee.Id" selected="@(Model.EmployeeId == employee.Id)">@employee.FullName</option>
+                }
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-outline">Apply</button>
+            <a asp-action="Index" class="btn btn-outline">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.LeaveRequests.Count == 0)
+    {
+        <div class="card-body text-muted">No leave requests match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Request</th>
+                        <th>Employee</th>
+                        <th>Type</th>
+                        <th>Dates</th>
+                        <th>Days</th>
+                        <th>Status</th>
+                        <th>Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var request in Model.LeaveRequests)
+                    {
+                        <tr>
+                            <td><code>@request.RequestNumber</code></td>
+                            <td>
+                                <a asp-controller="Employees" asp-action="Details" asp-route-id="@request.EmployeeId">@request.Employee?.FullName</a>
+                            </td>
+                            <td>@request.LeaveType</td>
+                            <td>@request.StartDate.ToString("dd MMM yyyy") to @request.EndDate.ToString("dd MMM yyyy")</td>
+                            <td>@request.Days.ToString("0.##")</td>
+                            <td><span class="status-chip status-@request.Status.ToString().ToLowerInvariant()">@request.Status</span></td>
+                            <td>
+                                <a asp-action="Details" asp-route-id="@request.Id" class="btn btn-sm btn-outline">Review</a>
+                                @if (request.Status == LeaveStatus.Pending)
+                                {
+                                    <form method="post" asp-action="Approve" asp-route-id="@request.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-primary">Approve</button>
+                                    </form>
+                                    <form method="post" asp-action="Reject" asp-route-id="@request.Id" class="d-inline">
+                                        <button type="submit" class="btn btn-sm btn-outline-danger">Reject</button>
+                                    </form>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

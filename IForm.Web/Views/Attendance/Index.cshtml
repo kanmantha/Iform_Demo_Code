@@ -1,0 +1,98 @@
+@model AttendanceListViewModel
+@{
+    ViewData["Title"] = "Attendance";
+    ViewData["PageTitle"] = "Manual Attendance";
+    ViewData["PageSubtitle"] = "One record per employee per day; hours and status are derived from the times";
+    ViewData["ActiveMenu"] = "hr-attendance";
+}
+
+<div class="page-actions">
+    <a asp-action="Create" class="btn btn-primary">Record Attendance</a>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card"><span>Records shown</span><strong>@Model.TotalCount</strong></div>
+    <div class="stat-card"><span>Total hours</span><strong>@Model.TotalHours.ToString("0.##")</strong></div>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-2">
+    <div class="form-row">
+        <div class="form-group">
+            <label for="from">From</label>
+            <input type="date" id="from" name="from" value="@Model.From?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="to">To</label>
+            <input type="date" id="to" name="to" value="@Model.To?.ToString("yyyy-MM-dd")" class="form-control" />
+        </div>
+        <div class="form-group">
+            <label for="employeeId">Employee</label>
+            <select id="employeeId" name="employeeId" class="form-control">
+                <option value="">All employees</option>
+                @foreach (var employee in Model.Employees)
+                {
+                    <option value="@employee.Id" selected="@(Model.EmployeeId == employee.Id)">@employee.FullName</option>
+                }
+            </select>
+        </div>
+        <div class="form-group">
+            <label for="status">Status</label>
+            <select id="status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<AttendanceStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="form-actions">
+            <button type="submit" class="btn btn-outline">Apply</button>
+            <a asp-action="Index" class="btn btn-outline">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Records.Count == 0)
+    {
+        <div class="card-body text-muted">No attendance records match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Check In</th>
+                        <th>Check Out</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                        <th>Notes</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var record in Model.Records)
+                    {
+                        <tr>
+                            <td>@record.Date.ToString("dd MMM yyyy")</td>
+                            <td>@record.Employee?.FullName</td>
+                            <td>@(record.CheckIn?.ToString("HH:mm") ?? "-")</td>
+                            <td>@(record.CheckOut?.ToString("HH:mm") ?? "-")</td>
+                            <td>@record.HoursWorked.ToString("0.##")</td>
+                            <td><span class="status-chip status-@record.Status.ToString().ToLowerInvariant()">@record.Status</span></td>
+                            <td class="small">@(record.Notes ?? "-")</td>
+                            <td class="text-end">
+                                <form method="post" asp-action="Delete" asp-route-id="@record.Id" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

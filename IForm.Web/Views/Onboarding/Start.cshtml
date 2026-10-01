@@ -1,0 +1,46 @@
+@model OnboardingStartFormViewModel
+@{
+    ViewData["Title"] = "Start Onboarding";
+    ViewData["PageTitle"] = "Start Onboarding";
+    ViewData["PageSubtitle"] = "Copies the template's tasks into a per-employee checklist with due dates";
+    ViewData["ActiveMenu"] = "hr-onboarding";
+}
+
+<form asp-action="Start" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Checklist</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="EmployeeId">Employee</label>
+                    <select asp-for="EmployeeId" asp-items="Model.EmployeeOptions" class="form-control">
+                        <option value="">Select employee</option>
+                    </select>
+                    <span asp-validation-for="EmployeeId" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="OnboardingTemplateId">Template</label>
+                    <select asp-for="OnboardingTemplateId" asp-items="Model.TemplateOptions" class="form-control">
+                        <option value="">Select template</option>
+                    </select>
+                    <span asp-validation-for="OnboardingTemplateId" class="text-danger"></span>
+                </div>
+            </div>
+            @if (Model.Templates.Count == 0)
+            {
+                <p class="text-muted mb-0">No active templates. <a asp-action="CreateTemplate">Create one first</a>.</p>
+            }
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary" disabled="@(Model.Templates.Count == 0)">Start Onboarding</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

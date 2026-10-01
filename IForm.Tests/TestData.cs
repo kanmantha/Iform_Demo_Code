@@ -151,6 +151,86 @@ internal static class TestData
             CreatedAt = DateTime.UtcNow.AddDays(-id)
         };
 
+    public static Department Department(string code, string name, bool isActive = true)
+        => new()
+        {
+            Code = code,
+            Name = name,
+            IsActive = isActive,
+            CreatedAt = DateTime.UtcNow
+        };
+
+    public static Employee Employee(
+        string code,
+        string firstName,
+        string lastName,
+        int? departmentId = null,
+        int? managerId = null,
+        string? jobTitle = null,
+        EmploymentStatus status = EmploymentStatus.Active)
+        => new()
+        {
+            EmployeeCode = code,
+            FirstName = firstName,
+            LastName = lastName,
+            Email = $"{firstName.ToLowerInvariant()}.{lastName.ToLowerInvariant()}@iform.app",
+            DepartmentId = departmentId,
+            ManagerId = managerId,
+            JobTitle = jobTitle,
+            Status = status,
+            DateJoined = DateTime.UtcNow.AddMonths(-6),
+            CreatedAt = DateTime.UtcNow
+        };
+
+    public static LeaveLedgerEntry Grant(int employeeId, LeaveType type, decimal days, string reason = "Annual entitlement")
+        => new()
+        {
+            EmployeeId = employeeId,
+            LeaveType = type,
+            Days = days,
+            Reason = reason,
+            CreatedAt = DateTime.UtcNow.AddDays(-30)
+        };
+
+    public static LeaveRequest Leave(
+        int employeeId,
+        LeaveType type,
+        DateTime start,
+        DateTime end,
+        decimal days,
+        LeaveStatus status = LeaveStatus.Pending,
+        string? requestNumber = null)
+        => new()
+        {
+            RequestNumber = requestNumber ?? $"LV-{employeeId:D5}",
+            EmployeeId = employeeId,
+            LeaveType = type,
+            StartDate = start.Date,
+            EndDate = end.Date,
+            Days = days,
+            Reason = "Test leave request",
+            Status = status,
+            CreatedAt = DateTime.UtcNow.AddDays(-2)
+        };
+
+    public static ExpenseClaim Claim(
+        int employeeId,
+        decimal amount,
+        ExpenseStatus status = ExpenseStatus.Submitted,
+        string? claimNumber = null)
+        => new()
+        {
+            ClaimNumber = claimNumber ?? $"EX-{employeeId:D5}",
+            EmployeeId = employeeId,
+            Category = "Travel",
+            Description = "Test claim",
+            Amount = amount,
+            Currency = "INR",
+            ExpenseDate = DateTime.UtcNow.Date,
+            Status = status,
+            CreatedAt = DateTime.UtcNow.AddDays(-2)
+        };
+
     public static MaterialCertificate Certificate(int id, string number, string supplier, string uploadedById)
         => new()
         {

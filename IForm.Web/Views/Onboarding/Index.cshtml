@@ -1,0 +1,91 @@
+@model OnboardingListViewModel
+@{
+    ViewData["Title"] = "Onboarding";
+    ViewData["PageTitle"] = "Onboarding Checklists";
+    ViewData["PageSubtitle"] = "Start a template for a new hire and track each task to completion";
+    ViewData["ActiveMenu"] = "hr-onboarding";
+}
+
+<div class="page-actions">
+    <a asp-action="Start" class="btn btn-primary">Start Onboarding</a>
+    <a asp-action="Templates" class="btn btn-outline">Manage Templates</a>
+</div>
+
+<div class="stat-row">
+    <div class="stat-card"><span>In progress</span><strong>@Model.ActiveCount</strong></div>
+    <div class="stat-card"><span>Completed</span><strong>@Model.CompletedCount</strong></div>
+    <div class="stat-card"><span>Overdue tasks</span><strong>@Model.OverdueTaskCount</strong></div>
+    <div class="stat-card"><span>Templates</span><strong>@Model.Templates.Count</strong></div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Checklists</h2></div>
+    @if (Model.Onboardings.Count == 0)
+    {
+        <div class="card-body text-muted">No onboarding checklists yet. Start one for a new hire.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Employee</th>
+                        <th>Template</th>
+                        <th>Started</th>
+                        <th>Progress</th>
+                        <th>Status</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var onboarding in Model.Onboardings)
+                    {
+                        var done = onboarding.Tasks.Count(t => t.IsCompleted);
+                        var total = onboarding.Tasks.Count;
+                        <tr>
+                            <td><a asp-controller="Employees" asp-action="Details" asp-route-id="@onboarding.EmployeeId">@onboarding.Employee?.FullName</a></td>
+                            <td>@onboarding.OnboardingTemplate?.Name</td>
+                            <td>@onboarding.StartedAt.ToString("dd MMM yyyy")</td>
+                            <td>@done / @total</td>
+                            <td>
+                                <span class="status-chip status-@(onboarding.CompletedAt is null ? "inprogress" : "completed")">
+                                    @(onboarding.CompletedAt is null ? "In progress" : "Completed")
+                                </span>
+                            </td>
+                            <td class="text-end"><a asp-action="Details" asp-route-id="@onboarding.Id" class="btn btn-sm btn-outline">Open</a></td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>
+
+<div class="card">
+    <div class="card-header"><h2>Overdue tasks (@Model.OpenTasks.Count)</h2></div>
+    @if (Model.OpenTasks.Count == 0)
+    {
+        <div class="card-body text-muted">Nothing is overdue.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-sm table-hover align-middle mb-0">
+                <thead><tr><th>Task</th><th>Employee</th><th>Due</th><th>Overdue by</th></tr></thead>
+                <tbody>
+                    @foreach (var task in Model.OpenTasks)
+                    {
+                        var overdueBy = (DateTime.UtcNow.Date - task.DueDate.Date).Days;
+                        <tr>
+                            <td><a asp-action="Details" asp-route-id="@task.EmployeeOnboardingId">@task.Title</a></td>
+                            <td>@task.EmployeeOnboarding?.Employee?.FullName</td>
+                            <td>@task.DueDate.ToString("dd MMM yyyy")</td>
+                            <td class="text-danger">@overdueBy day(s)</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

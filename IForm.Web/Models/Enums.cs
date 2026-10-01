@@ -139,3 +139,49 @@ public enum EotClientApproval
     Approved,
     Rejected
 }
+
+public enum EmploymentStatus
+{
+    Active,
+    OnProbation,
+    OnLeave,
+    NoticePeriod,
+    Exited
+}
+
+public enum LeaveType
+{
+    Casual,
+    Sick,
+    Earned,
+    Unpaid,
+    Maternity,
+    CompOff
+}
+
+public enum LeaveStatus
+{
+    Pending,
+    Approved,
+    Rejected,
+    Cancelled
+}
+
+public enum ExpenseStatus
+{
+    Draft,
+    Submitted,
+    Approved,
+    Rejected,
+    Reimbursed
+}
+
+public enum AttendanceStatus
+{
+    Present,
+    Absent,
+    HalfDay,
+    OnLeave,
+    Holiday,
+    Weekend
+}

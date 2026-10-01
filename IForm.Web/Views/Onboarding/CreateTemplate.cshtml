@@ -1,0 +1,73 @@
+@model OnboardingTemplateFormViewModel
+@{
+    ViewData["Title"] = "New Onboarding Template";
+    ViewData["PageTitle"] = "New Onboarding Template";
+    ViewData["PageSubtitle"] = "Due dates are offsets in days from the day onboarding starts";
+    ViewData["ActiveMenu"] = "hr-onboarding";
+}
+
+<form asp-action="CreateTemplate" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    <input type="hidden" asp-for="Id" />
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Template</h2></div>
+        <div class="card-body">
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Name"></label>
+                    <input asp-for="Name" class="form-control" placeholder="e.g. Site Engineer - Standard" />
+                    <span asp-validation-for="Name" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Description"></label>
+                    <input asp-for="Description" class="form-control" />
+                </div>
+            </div>
+            <div class="form-group form-check">
+                <input asp-for="IsActive" class="form-check-input" />
+                <label asp-for="IsActive" class="form-check-label"></label>
+            </div>
+        </div>
+    </div>
+
+    <div class="card mb-2">
+        <div class="card-header"><h2>Tasks</h2></div>
+        <div class="card-body">
+            <span asp-validation-for="Tasks" class="text-danger"></span>
+            <table class="table align-middle mb-0">
+                <thead><tr><th style="width: 70%;">Title</th><th>Due (days after start)</th></tr></thead>
+                <tbody>
+                    @{
+                        // Names are written out rather than using asp-for with an indexer:
+                        // asp-for resolves against the current collection size, which is
+                        // zero on a blank form.
+                        var rows = Math.Max(3, Model.Tasks.Count);
+                    }
+                    @for (var i = 0; i < rows; i++)
+                    {
+                        var title = i < Model.Tasks.Count ? Model.Tasks[i].Title : string.Empty;
+                        var offset = i < Model.Tasks.Count ? Model.Tasks[i].DueDayOffset : 7;
+                        <tr>
+                            <td>
+                                <input name="Tasks[@i].Title" value="@title" class="form-control" placeholder="e.g. Collect ID proof" />
+                            </td>
+                            <td>
+                                <input name="Tasks[@i].DueDayOffset" value="@offset" type="number" min="1" max="365" class="form-control" />
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">Create Template</button>
+        <a class="btn btn-outline" asp-action="Templates">Cancel</a>
+    </div>
+</form>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}
