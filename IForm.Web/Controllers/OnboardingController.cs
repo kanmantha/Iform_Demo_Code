@@ -1,5 +1,6 @@
 using IForm.Web.Data;
 using IForm.Web.Models;
+using IForm.Web.Services;
 using IForm.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -92,7 +93,7 @@ public class OnboardingController : Controller
             return View(model);
         }
 
-        var startDate = DateTime.UtcNow.Date;
+        var startDate = UtcDates.Date(DateTime.UtcNow);
         var onboarding = new EmployeeOnboarding
         {
             EmployeeId = model.EmployeeId,

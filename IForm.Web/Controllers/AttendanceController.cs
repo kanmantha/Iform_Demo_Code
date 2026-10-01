@@ -100,9 +100,9 @@ public class AttendanceController : Controller
         var record = new AttendanceRecord
         {
             EmployeeId = model.EmployeeId,
-            Date = model.Date.Date,
-            CheckIn = model.CheckIn,
-            CheckOut = model.CheckOut,
+            Date = UtcDates.Date(model.Date),
+            CheckIn = UtcDates.Instant(model.CheckIn),
+            CheckOut = UtcDates.Instant(model.CheckOut),
             HoursWorked = hours,
             Status = status.Value,
             Notes = model.Notes,

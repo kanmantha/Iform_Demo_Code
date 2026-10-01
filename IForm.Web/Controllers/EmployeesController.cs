@@ -1,5 +1,6 @@
 using IForm.Web.Data;
 using IForm.Web.Models;
+using IForm.Web.Services;
 using IForm.Web.ViewModels;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
@@ -113,8 +114,8 @@ public class EmployeesController : Controller
             JobTitle = model.JobTitle,
             ManagerId = model.ManagerId,
             Status = model.Status,
-            DateJoined = model.DateJoined,
-            DateOfBirth = model.DateOfBirth,
+            DateJoined = UtcDates.Date(model.DateJoined),
+            DateOfBirth = UtcDates.Date(model.DateOfBirth),
             Address = model.Address,
             EmergencyContactName = model.EmergencyContactName,
             EmergencyContactPhone = model.EmergencyContactPhone,
@@ -173,8 +174,8 @@ public class EmployeesController : Controller
             JobTitle = employee.JobTitle,
             ManagerId = employee.ManagerId,
             Status = employee.Status,
-            DateJoined = employee.DateJoined,
-            DateOfBirth = employee.DateOfBirth,
+            DateJoined = employee.DateJoined?.ToLocalTime(),
+            DateOfBirth = employee.DateOfBirth?.ToLocalTime(),
             Address = employee.Address,
             EmergencyContactName = employee.EmergencyContactName,
             EmergencyContactPhone = employee.EmergencyContactPhone
@@ -239,8 +240,8 @@ public class EmployeesController : Controller
         employee.JobTitle = model.JobTitle;
         employee.ManagerId = model.ManagerId;
         employee.Status = model.Status;
-        employee.DateJoined = model.DateJoined;
-        employee.DateOfBirth = model.DateOfBirth;
+        employee.DateJoined = UtcDates.Date(model.DateJoined);
+        employee.DateOfBirth = UtcDates.Date(model.DateOfBirth);
         employee.Address = model.Address;
         employee.EmergencyContactName = model.EmergencyContactName;
         employee.EmergencyContactPhone = model.EmergencyContactPhone;

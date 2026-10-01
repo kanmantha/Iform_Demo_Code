@@ -75,7 +75,7 @@ public class ExpensesController : Controller
             Description = model.Description,
             Amount = model.Amount,
             Currency = model.Currency.Trim().ToUpperInvariant(),
-            ExpenseDate = model.ExpenseDate.Date,
+            ExpenseDate = UtcDates.Date(model.ExpenseDate),
             Status = ExpenseStatus.Submitted,
             CreatedAt = DateTime.UtcNow
         };
