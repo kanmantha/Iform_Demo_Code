@@ -122,6 +122,23 @@ public class EmployeesController : Controller
             AppUserId = model.AppUserId,
             CreatedAt = DateTime.UtcNow
         };
+        if (string.IsNullOrEmpty(employee.AppUserId))
+        {
+            var linked = await _context.Employees
+                .AsNoTracking()
+                .Where(e => e.AppUserId != null)
+                .Select(e => e.AppUserId!)
+                .ToHashSetAsync();
+            var match = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Email == email && !linked.Contains(u.Id))
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+            if (match != null)
+            {
+                employee.AppUserId = match;
+            }
+        }
 
         _context.Employees.Add(employee);
         await _context.SaveChangesAsync();
@@ -248,6 +265,23 @@ public class EmployeesController : Controller
         employee.EmergencyContactName = model.EmergencyContactName;
         employee.EmergencyContactPhone = model.EmergencyContactPhone;
         employee.AppUserId = model.AppUserId;
+        if (string.IsNullOrEmpty(employee.AppUserId))
+        {
+            var linked = await _context.Employees
+                .AsNoTracking()
+                .Where(e => e.AppUserId != null && e.Id != employee.Id)
+                .Select(e => e.AppUserId!)
+                .ToHashSetAsync();
+            var match = await _context.Users
+                .AsNoTracking()
+                .Where(u => u.Email == email && !linked.Contains(u.Id))
+                .Select(u => u.Id)
+                .FirstOrDefaultAsync();
+            if (match != null)
+            {
+                employee.AppUserId = match;
+            }
+        }
 
         await _context.SaveChangesAsync();
 
