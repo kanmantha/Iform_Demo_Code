@@ -1,0 +1,35 @@
+@model Employee
+@{
+    ViewData["Title"] = "My Profile";
+    ViewData["PageTitle"] = "My Profile";
+    ViewData["PageSubtitle"] = Model.FullName;
+    ViewData["ActiveMenu"] = "me-profile";
+}
+
+<div class="card mb-2">
+    <div class="card-header"><h2>My details</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Employee code</span><strong>@Model.EmployeeCode</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>Email</span><strong>@Model.Email</strong></div>
+            <div><span>Phone</span><strong>@(Model.Phone ?? "-")</strong></div>
+            <div><span>Department</span><strong>@(Model.Department?.Name ?? "Unassigned")</strong></div>
+            <div><span>Job title</span><strong>@(Model.JobTitle ?? "-")</strong></div>
+            <div><span>Reports to</span><strong>@(Model.Manager?.FullName ?? "-")</strong></div>
+            <div><span>Date joined</span><strong>@(Model.DateJoined?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>Date of birth</span><strong>@(Model.DateOfBirth?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+        </div>
+    </div>
+</div>
+
+<div class="card mb-2">
+    <div class="card-header"><h2>Contact &amp; access</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Emergency contact</span><strong>@(Model.EmergencyContactName ?? "-") / @(Model.EmergencyContactPhone ?? "-")</strong></div>
+            <div><span>Linked app user ID</span><strong>@(Model.AppUserId ?? "-")</strong></div>
+        </div>
+        <p class="mt-2 mb-0"><span class="detail-label">Address</span><br />@(Model.Address ?? "-")</p>
+    </div>
+</div>
