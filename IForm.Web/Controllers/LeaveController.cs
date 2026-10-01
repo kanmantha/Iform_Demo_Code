@@ -78,6 +78,11 @@ public class LeaveController : Controller
             return View(model);
         }
 
+        // Stamp the range up front: Npgsql rejects Unspecified-kind values both when writing
+        // rows and when binding them as query parameters, and the overlap check below needs it.
+        model.StartDate = UtcDates.Date(model.StartDate);
+        model.EndDate = UtcDates.Date(model.EndDate);
+
         if (model.StartDate.Date > model.EndDate.Date)
         {
             ModelState.AddModelError(nameof(model.EndDate), "End date must be on or after the start date.");
@@ -103,8 +108,8 @@ public class LeaveController : Controller
             RequestNumber = await NextRequestNumberAsync(),
             EmployeeId = model.EmployeeId,
             LeaveType = model.LeaveType,
-            StartDate = UtcDates.Date(model.StartDate),
-            EndDate = UtcDates.Date(model.EndDate),
+            StartDate = model.StartDate,
+            EndDate = model.EndDate,
             Days = model.Days,
             Reason = model.Reason.Trim(),
             Status = LeaveStatus.Pending,

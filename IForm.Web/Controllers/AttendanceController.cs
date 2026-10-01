@@ -22,14 +22,16 @@ public class AttendanceController : Controller
     {
         var query = _context.AttendanceRecords.Include(a => a.Employee).AsNoTracking();
 
+        // Filter values arrive from the query string as Unspecified, which Npgsql cannot bind
+        // against a timestamptz column, so stamp them before they reach the query.
         if (from.HasValue)
         {
-            query = query.Where(a => a.Date >= from.Value.Date);
+            query = query.Where(a => a.Date >= UtcDates.Date(from.Value));
         }
 
         if (to.HasValue)
         {
-            query = query.Where(a => a.Date <= to.Value.Date);
+            query = query.Where(a => a.Date <= UtcDates.Date(to.Value));
         }
 
         if (employeeId.HasValue)
@@ -48,8 +50,8 @@ public class AttendanceController : Controller
         {
             Records = records,
             Employees = await EmployeesAsync(),
-            From = from,
-            To = to,
+            From = from?.Date,
+            To = to?.Date,
             EmployeeId = employeeId,
             Status = status,
             TotalHours = records.Sum(r => r.HoursWorked),
@@ -83,7 +85,11 @@ public class AttendanceController : Controller
             return View(model);
         }
 
-        if (await _context.AttendanceRecords.AnyAsync(a => a.EmployeeId == model.EmployeeId && a.Date == model.Date.Date))
+        // Stamp before the duplicate check: Npgsql rejects Unspecified-kind values as query
+        // parameters against a timestamptz column just as it does when writing.
+        model.Date = UtcDates.Date(model.Date);
+
+        if (await _context.AttendanceRecords.AnyAsync(a => a.EmployeeId == model.EmployeeId && a.Date == model.Date))
         {
             ModelState.AddModelError(nameof(model.Date), "Attendance for that employee and date is already recorded.");
             return View(model);
@@ -100,7 +106,7 @@ public class AttendanceController : Controller
         var record = new AttendanceRecord
         {
             EmployeeId = model.EmployeeId,
-            Date = UtcDates.Date(model.Date),
+            Date = model.Date,
             CheckIn = UtcDates.Instant(model.CheckIn),
             CheckOut = UtcDates.Instant(model.CheckOut),
             HoursWorked = hours,
