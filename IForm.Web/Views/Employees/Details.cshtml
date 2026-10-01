@@ -41,6 +41,16 @@
 </div>
 
 <div class="card mb-2">
+    <div class="card-header"><h2>Account access</h2></div>
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Linked app user</span><strong>@(Model.AppUserId ?? "-")</strong></div>
+        </div>
+        <p class="text-muted small mt-2 mb-0">Linking is explicit. No email-based auto-matching is used for self-service.</p>
+    </div>
+</div>
+
+<div class="card mb-2">
     <div class="card-header"><h2>Direct reports (@directReports.Count)</h2></div>
     @if (directReports.Count == 0)
     {

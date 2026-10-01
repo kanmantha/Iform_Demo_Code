@@ -112,6 +112,23 @@
         </div>
     </div>
 
+    <div class="card mb-2">
+        <div class="card-header"><h2>Account access</h2></div>
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="AppUserId">Linked app user (explicit assignment only)</label>
+                <select asp-for="AppUserId" class="form-control">
+                    <option value="">Unlinked</option>
+                    @foreach (var user in Model.AppUsers)
+                    {
+                        <option value="@user.Id">@user.Email (@user.FullName)</option>
+                    }
+                </select>
+                <span class="text-muted small">No email-based auto-linking. Users already linked to another employee are hidden.</span>
+            </div>
+        </div>
+    </div>
+
     <div class="form-actions mt-2">
         <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Create Employee")</button>
         <a class="btn btn-outline" asp-action="Index">Cancel</a>

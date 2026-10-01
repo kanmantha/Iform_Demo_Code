@@ -391,5 +391,15 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
                 .HasForeignKey(t => t.EmployeeOnboardingId)
                 .OnDelete(DeleteBehavior.Cascade);
         });
+
+        builder.Entity<Employee>(e =>
+        {
+            e.HasOne(x => x.AppUser)
+                .WithMany()
+                .HasForeignKey(x => x.AppUserId)
+                .OnDelete(DeleteBehavior.SetNull);
+
+            e.HasIndex(x => x.AppUserId).IsUnique();
+        });
     }
 }

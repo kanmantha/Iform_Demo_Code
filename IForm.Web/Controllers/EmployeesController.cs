@@ -119,6 +119,7 @@ public class EmployeesController : Controller
             Address = model.Address,
             EmergencyContactName = model.EmergencyContactName,
             EmergencyContactPhone = model.EmergencyContactPhone,
+            AppUserId = model.AppUserId,
             CreatedAt = DateTime.UtcNow
         };
 
@@ -178,7 +179,8 @@ public class EmployeesController : Controller
             DateOfBirth = employee.DateOfBirth?.ToLocalTime(),
             Address = employee.Address,
             EmergencyContactName = employee.EmergencyContactName,
-            EmergencyContactPhone = employee.EmergencyContactPhone
+            EmergencyContactPhone = employee.EmergencyContactPhone,
+            AppUserId = employee.AppUserId
         };
 
         await PopulateOptionsAsync(model, excludeId: employee.Id);
@@ -245,6 +247,7 @@ public class EmployeesController : Controller
         employee.Address = model.Address;
         employee.EmergencyContactName = model.EmergencyContactName;
         employee.EmergencyContactPhone = model.EmergencyContactPhone;
+        employee.AppUserId = model.AppUserId;
 
         await _context.SaveChangesAsync();
 
@@ -316,6 +319,19 @@ public class EmployeesController : Controller
             .OrderBy(e => e.FirstName)
             .ThenBy(e => e.LastName)
             .Select(e => new Employee { Id = e.Id, FirstName = e.FirstName, LastName = e.LastName, JobTitle = e.JobTitle })
+            .ToListAsync();
+
+        // Explicit assignment only: show users not yet linked to any employee
+        var linkedAppUserIds = await _context.Employees
+            .AsNoTracking()
+            .Where(e => e.AppUserId != null && (excludeId == null || e.Id != excludeId))
+            .Select(e => e.AppUserId!)
+            .ToListAsync();
+
+        model.AppUsers = await _context.Users
+            .AsNoTracking()
+            .Where(u => !linkedAppUserIds.Contains(u.Id))
+            .OrderBy(u => u.Email)
             .ToListAsync();
     }
 }

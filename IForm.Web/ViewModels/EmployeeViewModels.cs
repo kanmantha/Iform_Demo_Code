@@ -65,8 +65,12 @@ public class EmployeeFormViewModel
     [Phone, MaxLength(30)]
     public string? EmergencyContactPhone { get; set; }
 
+    public string? AppUserId { get; set; }
+
     public List<Department> Departments { get; set; } = [];
 
     /// <summary>Populated by the controller to keep the manager dropdown from offering a reporting cycle.</summary>
     public List<Employee> Managers { get; set; } = [];
+
+    public List<AppUser> AppUsers { get; set; } = [];
 }

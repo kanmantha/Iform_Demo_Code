@@ -52,6 +52,11 @@ public class Employee
     [Phone, MaxLength(30)]
     public string? EmergencyContactPhone { get; set; }
 
+    [MaxLength(450)]
+    public string? AppUserId { get; set; }
+
+    public AppUser? AppUser { get; set; }
+
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 
     public string FullName => $"{FirstName} {LastName}".Trim();
