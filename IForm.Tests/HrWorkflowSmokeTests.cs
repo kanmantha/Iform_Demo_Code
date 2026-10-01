@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc.Testing;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.DependencyInjection;
 using IForm.Web.Models;
+using IForm.Web.Services;
 
 namespace IForm.Tests;
 
@@ -529,6 +530,118 @@ public class HrWorkflowSmokeTests : IClassFixture<WebApplicationFactory<Program>
 
         var html = await client.GetStringAsync("/Onboarding");
         Assert.Contains("Meera Krishnan", html);
+    }
+
+    [Fact]
+    public async Task Leave_Unapprove_RestoresBalanceAndReturnsToPending()
+    {
+        var client = await LoginClientAsync(_factory, "admin@iform.app", "Admin@123");
+
+        int employeeId;
+        int requestId;
+        decimal balanceBefore;
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IForm.Web.Data.ApplicationDbContext>();
+            var employee = await db.Employees.FirstAsync();
+
+            var request = new LeaveRequest
+            {
+                EmployeeId = employee.Id,
+                LeaveType = LeaveType.Casual,
+                StartDate = UtcDates.Date(new DateTime(2027, 3, 8)),
+                EndDate = UtcDates.Date(new DateTime(2027, 3, 9)),
+                Days = 2m,
+                Reason = "Reversal probe",
+                Status = LeaveStatus.Approved,
+                RequestNumber = "LV-UNAPPROVE-PROBE",
+                CreatedAt = DateTime.UtcNow
+            };
+            db.LeaveRequests.Add(request);
+            await db.SaveChangesAsync();
+            requestId = request.Id;
+            employeeId = employee.Id;
+            balanceBefore = await db.LeaveLedgerEntries
+                .Where(l => l.EmployeeId == employee.Id)
+                .SumAsync(l => (decimal?)l.Days) ?? 0m;
+        }
+
+        var token = await TokenAsync(client, $"/Leave/Details/{requestId}");
+        var response = await client.PostAsync(
+            $"/Leave/Unapprove/{requestId}",
+            new FormUrlEncodedContent(new Dictionary<string, string> { ["__RequestVerificationToken"] = token }));
+        Assert.True(response.IsSuccessStatusCode, $"Unapprove failed with {(int)response.StatusCode}.");
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IForm.Web.Data.ApplicationDbContext>();
+            var saved = await db.LeaveRequests.FindAsync(requestId);
+
+            Assert.Equal(LeaveStatus.Pending, saved!.Status);
+            Assert.Null(saved.DecidedAt);
+            Assert.Null(saved.DecisionNote);
+
+            var balanceAfter = await db.LeaveLedgerEntries
+                .Where(l => l.EmployeeId == employeeId)
+                .SumAsync(l => (decimal?)l.Days) ?? 0m;
+            Assert.Equal(balanceBefore, balanceAfter);
+        }
+    }
+
+    [Fact]
+    public async Task Onboarding_DeleteRunRemovesItAndItsTasks()
+    {
+        var client = await LoginClientAsync(_factory, "admin@iform.app", "Admin@123");
+
+        int runId;
+        int taskCount;
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IForm.Web.Data.ApplicationDbContext>();
+            var employee = await db.Employees.FirstAsync();
+            var template = await db.OnboardingTemplates.FirstAsync();
+
+            var run = new EmployeeOnboarding
+            {
+                EmployeeId = employee.Id,
+                OnboardingTemplateId = template.Id,
+                StartedAt = DateTime.UtcNow
+            };
+            run.Tasks.Add(new EmployeeOnboardingTask
+            {
+                Title = "Disposable probe task",
+                DueDate = UtcDates.Date(DateTime.UtcNow),
+                DisplayOrder = 1
+            });
+            run.Tasks.Add(new EmployeeOnboardingTask
+            {
+                Title = "Second disposable probe task",
+                DueDate = UtcDates.Date(DateTime.UtcNow),
+                DisplayOrder = 2
+            });
+
+            db.EmployeeOnboardings.Add(run);
+            await db.SaveChangesAsync();
+            runId = run.Id;
+            taskCount = run.Tasks.Count;
+        }
+
+        var token = await TokenAsync(client, $"/Onboarding/Details/{runId}");
+        var response = await client.PostAsync(
+            $"/Onboarding/Delete/{runId}",
+            new FormUrlEncodedContent(new Dictionary<string, string> { ["__RequestVerificationToken"] = token }));
+        Assert.True(response.IsSuccessStatusCode, $"Delete failed with {(int)response.StatusCode}.");
+
+        using (var scope = _factory.Services.CreateScope())
+        {
+            var db = scope.ServiceProvider.GetRequiredService<IForm.Web.Data.ApplicationDbContext>();
+
+            Assert.Null(await db.EmployeeOnboardings.FindAsync(runId));
+            Assert.Empty(await db.EmployeeOnboardingTasks.Where(t => t.EmployeeOnboardingId == runId).ToListAsync());
+            Assert.Equal(2, taskCount);
+        }
     }
 
     [Fact]

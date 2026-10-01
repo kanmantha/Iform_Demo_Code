@@ -58,6 +58,23 @@
     </div>
 }
 
+@if (request.Status == LeaveStatus.Approved)
+{
+    <div class="card mb-2">
+        <div class="card-header"><h2>Reversal</h2></div>
+        <div class="card-body">
+            <p class="text-muted">
+                Reversing returns the request to pending and restores @request.Days.ToString("0.##") day(s) to the balance.
+            </p>
+            <div class="form-actions">
+                <form method="post" asp-action="Unapprove" asp-route-id="@request.Id" class="d-inline">
+                    <button type="submit" class="btn btn-outline">Reverse approval</button>
+                </form>
+            </div>
+        </div>
+    </div>
+}
+
 <div class="card mb-2">
     <div class="card-header"><h2>Recent ledger for @request.Employee?.FullName</h2></div>
     @if (Model.RecentLedger.Count == 0)

@@ -11,6 +11,10 @@
 
 <div class="page-actions">
     <a asp-action="Index" class="btn btn-outline">Back to Onboarding</a>
+    <form method="post" asp-action="Delete" asp-route-id="@onboarding.Id" class="d-inline"
+          onsubmit="return confirm('Delete this onboarding run and its checklist?');">
+        <button type="submit" class="btn btn-outline-danger">Delete</button>
+    </form>
 </div>
 
 <div class="stat-row">

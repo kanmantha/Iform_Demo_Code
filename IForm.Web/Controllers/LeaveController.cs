@@ -201,6 +201,43 @@ public class LeaveController : Controller
 
     [HttpPost]
     [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Unapprove(int id)
+    {
+        var request = await _context.LeaveRequests.FirstOrDefaultAsync(r => r.Id == id);
+        if (request is null)
+        {
+            return NotFound();
+        }
+
+        if (request.Status != LeaveStatus.Approved)
+        {
+            TempData["Error"] = $"Only approved requests can be reversed; this one is {request.Status.ToString().ToLowerInvariant()}.";
+            return RedirectToAction(nameof(Details), new { id });
+        }
+
+        // Approval posted a negative ledger row; post the mirror image so the balance returns
+        // to what it was without rewriting history.
+        var reversal = await _context.LeaveLedgerEntries
+            .FirstOrDefaultAsync(l => l.LeaveRequestId == request.Id);
+
+        if (reversal is not null)
+        {
+            _context.LeaveLedgerEntries.Remove(reversal);
+        }
+
+        request.Status = LeaveStatus.Pending;
+        request.DecidedAt = null;
+        request.DecidedById = null;
+        request.DecisionNote = null;
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"{request.RequestNumber} reversed to pending. {request.Days:0.##} day(s) restored.";
+        return RedirectToAction(nameof(Details), new { id });
+    }
+
+    [HttpPost]
+    [ValidateAntiForgeryToken]
     public async Task<IActionResult> Reject(int id, string? note)
     {
         var request = await _context.LeaveRequests.FirstOrDefaultAsync(r => r.Id == id);

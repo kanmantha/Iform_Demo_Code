@@ -163,6 +163,31 @@ public class OnboardingController : Controller
         return RedirectToAction(nameof(Details), new { id = onboarding.Id });
     }
 
+    [HttpPost]
+    [ValidateAntiForgeryToken]
+    public async Task<IActionResult> Delete(int id)
+    {
+        var onboarding = await _context.EmployeeOnboardings
+            .Include(o => o.Employee)
+            .Include(o => o.Tasks)
+            .FirstOrDefaultAsync(o => o.Id == id);
+
+        if (onboarding is null)
+        {
+            return NotFound();
+        }
+
+        // Remove the checklist rows explicitly so this works on both providers regardless of
+        // whether the relationship is configured for database cascade.
+        _context.EmployeeOnboardingTasks.RemoveRange(onboarding.Tasks);
+        _context.EmployeeOnboardings.Remove(onboarding);
+
+        await _context.SaveChangesAsync();
+
+        TempData["Success"] = $"Onboarding for {onboarding.Employee?.FullName ?? $"employee #{onboarding.EmployeeId}"} deleted.";
+        return RedirectToAction(nameof(Index));
+    }
+
     [HttpGet]
     public async Task<IActionResult> Templates()
     {
