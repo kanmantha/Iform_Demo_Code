@@ -6,7 +6,7 @@
     ViewData["ActiveMenu"] = "products";
 }
 
-<form asp-action="Edit" method="post">
+<form asp-action="Edit" method="post" enctype="multipart/form-data">
     <input type="hidden" asp-for="Id" />
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
@@ -59,12 +59,27 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="IsActive">Status</label>
-                <select asp-for="IsActive" class="form-control">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="IsActive">Status</label>
+                    <select asp-for="IsActive" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ImageFile">Product image</label>
+                    <div class="form-row" style="grid-template-columns: auto 1fr; align-items: center;">
+                        <img id="productImagePreview"
+                             src="@(string.IsNullOrEmpty(Model.ImagePath) ? "/images/product-placeholder.svg" : Model.ImagePath)"
+                             alt="@Model.ProductCode" style="width: 64px; height: 64px; object-fit: contain; border: 1px solid #e2e8f0; border-radius: 6px; background: #f8fafc;" />
+                        <div>
+                            <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control" onchange="var f=this.files[0]; if(f){var r=new FileReader(); r.onload=function(e){document.getElementById('productImagePreview').src=e.target.result;}; r.readAsDataURL(f);}" />
+                            <span asp-validation-for="ImageFile" class="text-danger"></span>
+                            <span class="text-muted text-sm">Upload a new photo to replace the current one (max 5 MB).</span>
+                        </div>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

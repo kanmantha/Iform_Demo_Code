@@ -78,7 +78,26 @@ public class SiteQueryFormViewModel
 
     public IEnumerable<SelectListItem> ProductOptions { get; set; } = new List<SelectListItem>();
 
+    public IReadOnlyList<ProductOptionItem> ProductOptionItems { get; set; } = new List<ProductOptionItem>();
+
     public IReadOnlyList<string> ProjectOptions { get; set; } = new List<string>();
+}
+
+public class ProductOptionItem
+{
+    public int Id { get; set; }
+
+    public string Code { get; set; } = string.Empty;
+
+    public string Name { get; set; } = string.Empty;
+
+    public string? Family { get; set; }
+
+    public string? ImagePath { get; set; }
+
+    public bool Selected { get; set; }
+
+    public string Text => $"{Code} - {Name}";
 }
 
 public class SiteQueryDetailViewModel

@@ -6,7 +6,7 @@
     ViewData["ActiveMenu"] = "products";
 }
 
-<form asp-action="Create" method="post">
+<form asp-action="Create" method="post" enctype="multipart/form-data">
     <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
 
     <div class="card mb-2">
@@ -58,12 +58,20 @@
                 </div>
             </div>
 
-            <div class="form-group">
-                <label asp-for="IsActive">Status</label>
-                <select asp-for="IsActive" class="form-control">
-                    <option value="true">Active</option>
-                    <option value="false">Inactive</option>
-                </select>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="IsActive">Status</label>
+                    <select asp-for="IsActive" class="form-control">
+                        <option value="true">Active</option>
+                        <option value="false">Inactive</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="ImageFile">Product image</label>
+                    <input asp-for="ImageFile" type="file" accept=".jpg,.jpeg,.png,.webp,.gif" class="form-control" />
+                    <span asp-validation-for="ImageFile" class="text-danger"></span>
+                    <span class="text-muted text-sm">Optional. Shown in the Report Issue product picker and Product Lookup (max 5 MB).</span>
+                </div>
             </div>
         </div>
     </div>

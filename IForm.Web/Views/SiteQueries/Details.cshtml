@@ -71,7 +71,21 @@
                     </div>
                     <div class="meta-item">
                         <div class="meta-label">Verified product</div>
-                        <div class="meta-value">@(q.ProductCode ?? "Not verified")</div>
+                        <div class="meta-value">
+                            @if (q.Product is not null)
+                            {
+                                <span style="display: inline-flex; align-items: center; gap: 8px;">
+                                    <img class="product-thumb"
+                                         src="@(string.IsNullOrEmpty(q.Product.ImagePath) ? "/images/product-placeholder.svg" : q.Product.ImagePath)"
+                                         alt="@q.Product.ProductCode" />
+                                    @q.ProductCode
+                                </span>
+                            }
+                            else
+                            {
+                                <span>@(q.ProductCode ?? "Not verified")</span>
+                            }
+                        </div>
                     </div>
                     <div class="meta-item">
                         <div class="meta-label">Raised by</div>

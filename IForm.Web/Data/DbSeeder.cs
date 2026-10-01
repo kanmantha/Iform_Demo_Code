@@ -12,7 +12,16 @@ public static class DbSeeder
 
     public static async Task SeedAsync(ApplicationDbContext context, UserManager<AppUser> userManager, RoleManager<IdentityRole> roleManager)
     {
-        await context.Database.MigrateAsync();
+        // The checked-in migrations target Postgres. Local SQLite databases are
+        // throwaway dev files, so the schema is created straight from the model.
+        if (context.Database.IsNpgsql())
+        {
+            await context.Database.MigrateAsync();
+        }
+        else
+        {
+            await context.Database.EnsureCreatedAsync();
+        }
 
         await SeedRolesAsync(roleManager);
         var admin = await SeedUserAsync(userManager, "admin@iform.app", "Admin@123", "System Administrator", "Safety & Compliance", "Administrator", AdminRole);
@@ -522,7 +531,7 @@ public static class DbSeeder
     {
         var catalog = AccessoryCatalog.Build();
 
-        var existing = await context.Products.AsNoTracking().ToListAsync();
+        var existing = await context.Products.ToListAsync();
         var existingCodes = existing.Select(p => p.ProductCode).ToHashSet(StringComparer.OrdinalIgnoreCase);
         var catalogCodes = catalog.Select(p => p.ProductCode).ToHashSet(StringComparer.OrdinalIgnoreCase);
 
@@ -541,6 +550,23 @@ public static class DbSeeder
             context.Products.AddRange(catalog);
             await context.SaveChangesAsync();
             return catalog.OrderBy(p => p.ProductCode).ToList();
+        }
+
+        var catalogByCode = catalog.ToDictionary(p => p.ProductCode, p => p.ImagePath, StringComparer.OrdinalIgnoreCase);
+        var imagePathChanged = false;
+        foreach (var product in existing)
+        {
+            var expected = catalogByCode.GetValueOrDefault(product.ProductCode);
+            if (string.IsNullOrWhiteSpace(product.ImagePath) && !string.IsNullOrWhiteSpace(expected))
+            {
+                product.ImagePath = expected;
+                imagePathChanged = true;
+            }
+        }
+
+        if (imagePathChanged)
+        {
+            await context.SaveChangesAsync();
         }
 
         return existing.OrderBy(p => p.ProductCode).ToList();

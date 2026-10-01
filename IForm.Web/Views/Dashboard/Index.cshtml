@@ -1,8 +1,8 @@
 @model IForm.Web.ViewModels.DashboardViewModel
 @{
     ViewData["Title"] = "Dashboard";
-    ViewData["PageTitle"] = "Ticket Dashboard";
-    ViewData["PageSubtitle"] = "Overview of safety and incident reporting";
+    ViewData["PageTitle"] = "My Dashboard";
+    ViewData["PageSubtitle"] = "Your tickets, incidents and actions";
     ViewData["ActiveMenu"] = "dashboard";
 }
 
@@ -15,8 +15,9 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.TotalTickets</div>
-            <div class="stat-label">Total Tickets</div>
+            <div class="stat-value">@Model.MyReportedTickets</div>
+            <div class="stat-label">My Reported</div>
+            <div class="stat-sub">Tickets I reported</div>
         </div>
     </div>
 
@@ -27,8 +28,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.OpenTickets</div>
-            <div class="stat-label">New &amp; Open</div>
+            <div class="stat-value">@Model.MyOpenTickets</div>
+            <div class="stat-label">My New &amp; Open</div>
             <div class="stat-sub">Needs attention</div>
         </div>
     </div>
@@ -40,8 +41,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.InProgressTickets</div>
-            <div class="stat-label">In Progress</div>
+            <div class="stat-value">@Model.MyInProgressTickets</div>
+            <div class="stat-label">My In Progress</div>
             <div class="stat-sub">Being worked on</div>
         </div>
     </div>
@@ -54,8 +55,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.CriticalTickets</div>
-            <div class="stat-label">Critical Priority</div>
+            <div class="stat-value">@Model.MyCriticalTickets</div>
+            <div class="stat-label">My Critical</div>
             <div class="stat-sub">High risk open</div>
         </div>
     </div>
@@ -67,8 +68,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.ResolvedTickets</div>
-            <div class="stat-label">Resolved</div>
+            <div class="stat-value">@Model.MyResolvedTickets</div>
+            <div class="stat-label">My Resolved</div>
             <div class="stat-sub">@Model.ResolvedRate% resolved rate</div>
         </div>
     </div>
@@ -97,9 +98,9 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.TotalIncidents</div>
-            <div class="stat-label">Total Incidents</div>
-            <div class="stat-sub">@Model.OpenIncidents open</div>
+            <div class="stat-value">@Model.MyIncidents</div>
+            <div class="stat-label">My Incidents</div>
+            <div class="stat-sub">@Model.MyOpenIncidents open</div>
         </div>
     </div>
 
@@ -110,8 +111,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.CriticalIncidents</div>
-            <div class="stat-label">Critical Incidents</div>
+            <div class="stat-value">@Model.MyCriticalIncidents</div>
+            <div class="stat-label">My Critical Incidents</div>
             <div class="stat-sub">High risk open</div>
         </div>
     </div>
@@ -123,9 +124,9 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.OpenActions</div>
-            <div class="stat-label">Open Actions</div>
-            <div class="stat-sub">@Model.CompletedActions completed</div>
+            <div class="stat-value">@Model.MyOpenActions</div>
+            <div class="stat-label">My Open Actions</div>
+            <div class="stat-sub">Assigned to me</div>
         </div>
     </div>
 
@@ -136,24 +137,9 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.OverdueActions</div>
-            <div class="stat-label">Overdue Actions</div>
+            <div class="stat-value">@Model.MyOverdueActions</div>
+            <div class="stat-label">My Overdue Actions</div>
             <div class="stat-sub">Past due date</div>
-        </div>
-    </div>
-
-    <div class="stat-card">
-        <div class="stat-icon blue">
-            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                <path d="M9 5H7a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2V7a2 2 0 00-2-2h-2"></path>
-                <rect x="9" y="3" width="6" height="4" rx="1"></rect>
-                <path d="M9 12h6"></path><path d="M9 16h6"></path>
-            </svg>
-        </div>
-        <div class="stat-meta">
-            <div class="stat-value">@Model.MyOpenActions</div>
-            <div class="stat-label">My Open Actions</div>
-            <div class="stat-sub">Assigned to me</div>
         </div>
     </div>
 
@@ -164,8 +150,8 @@
             </svg>
         </div>
         <div class="stat-meta">
-            <div class="stat-value">@Model.CompletedActions</div>
-            <div class="stat-label">Actions Completed</div>
+            <div class="stat-value">@Model.MyCompletedActions</div>
+            <div class="stat-label">My Completed Actions</div>
             <div class="stat-sub">All time</div>
         </div>
     </div>
@@ -174,8 +160,8 @@
 <div class="charts-grid">
     <div class="card">
         <div class="card-header">
-            <h2>Reports over last 14 days</h2>
-            <span class="text-muted text-sm">@Model.TotalTickets total</span>
+            <h2>My reports over last 14 days</h2>
+            <span class="text-muted text-sm">@Model.MyReportedTickets reported</span>
         </div>
         <div class="card-body">
             <div class="chart-box"><canvas id="trendChart"></canvas></div>
@@ -184,7 +170,7 @@
 
     <div class="card">
         <div class="card-header">
-            <h2>Tickets by status</h2>
+            <h2>My tickets by status</h2>
         </div>
         <div class="card-body">
             <div class="chart-box-sm"><canvas id="statusChart"></canvas></div>
@@ -205,18 +191,12 @@
             <div class="chart-box-sm"><canvas id="categoryChart"></canvas></div>
         </div>
     </div>
-    <div class="card">
-        <div class="card-header"><h2>By department</h2></div>
-        <div class="card-body">
-            <div class="chart-box-sm"><canvas id="deptChart"></canvas></div>
-        </div>
-    </div>
 </div>
 
 <div class="row">
     <div class="card" style="flex: 1.6;">
         <div class="card-header">
-            <h2>Recent tickets</h2>
+            <h2>My recent tickets</h2>
             <div class="card-actions">
                 <a class="btn btn-sm btn-outline" asp-controller="Tickets" asp-action="Board">Board view</a>
                 <a class="btn btn-sm btn-outline" asp-controller="Tickets" asp-action="Index">View all</a>
@@ -260,7 +240,7 @@
     </div>
 
     <div class="card" style="flex: 1;">
-        <div class="card-header"><h2>Recent activity</h2></div>
+        <div class="card-header"><h2>My recent activity</h2></div>
         <div class="activity-list">
             @if (Model.RecentActivity.Count == 0)
             {
@@ -303,7 +283,7 @@
                 data: {
                     labels: trend.map(d => d.Day),
                     datasets: [{
-                        label: 'Tickets reported',
+                        label: 'My reports',
                         data: trend.map(d => d.Created),
                         borderColor: '#4f46e5',
                         backgroundColor: 'rgba(79,70,229,0.10)',
@@ -373,27 +353,6 @@
                     datasets: [{
                         data: Object.values(categoryData),
                         backgroundColor: colors.palette.slice(0, Object.keys(categoryData).length),
-                        borderRadius: 6,
-                        maxBarThickness: 34
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: { legend: { display: false } },
-                    scales: { y: { beginAtZero: true, ticks: { precision: 0 } } }
-                }
-            });
-
-            // Department bar
-            const deptData = @Html.Raw(Json.Serialize(Model.TicketsByDepartment));
-            new Chart(document.getElementById('deptChart'), {
-                type: 'bar',
-                data: {
-                    labels: deptData.map(d => d.Department),
-                    datasets: [{
-                        data: deptData.map(d => d.Count),
-                        backgroundColor: '#06b6d4',
                         borderRadius: 6,
                         maxBarThickness: 34
                     }]

@@ -1,0 +1,13 @@
+services:
+  - type: web
+    name: iform
+    runtime: docker
+    plan: free
+    healthCheckPath: /Account/Login
+    envVars:
+      - key: ASPNETCORE_ENVIRONMENT
+        value: Production
+      # Set this in the Render dashboard as a Secret, not in this file.
+      # Neon: Host=...;Port=5432;Database=...;Username=...;Password=...;SSL Mode=Require
+      - key: ConnectionStrings__DefaultConnection
+        sync: false

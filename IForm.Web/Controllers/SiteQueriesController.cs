@@ -118,10 +118,12 @@ public class SiteQueriesController : Controller
     [HttpGet]
     public async Task<IActionResult> Create()
     {
+        var (productOptions, productItems) = await LoadProductOptionsAsync();
         var model = new SiteQueryFormViewModel
         {
             CategoryOptions = CategoryOptions(),
-            ProductOptions = await ProductOptionsAsync(),
+            ProductOptions = productOptions,
+            ProductOptionItems = productItems,
             ProjectOptions = await ProjectOptionsAsync()
         };
         return View(model);
@@ -134,7 +136,9 @@ public class SiteQueriesController : Controller
         if (!ModelState.IsValid)
         {
             model.CategoryOptions = CategoryOptions();
-            model.ProductOptions = await ProductOptionsAsync();
+            var (productOptions, productItems) = await LoadProductOptionsAsync(model.ProductId);
+            model.ProductOptions = productOptions;
+            model.ProductOptionItems = productItems;
             model.ProjectOptions = await ProjectOptionsAsync();
             return View(model);
         }
@@ -195,7 +199,9 @@ public class SiteQueriesController : Controller
         if (!ModelState.IsValid)
         {
             model.CategoryOptions = CategoryOptions();
-            model.ProductOptions = await ProductOptionsAsync();
+            var (productOptions, productItems) = await LoadProductOptionsAsync(model.ProductId);
+            model.ProductOptions = productOptions;
+            model.ProductOptionItems = productItems;
             model.ProjectOptions = await ProjectOptionsAsync();
             return View(model);
         }
@@ -244,9 +250,12 @@ public class SiteQueriesController : Controller
             SlabTargetDate = siteQuery.SlabTargetDate?.ToLocalTime(),
             SlabCompletedDate = siteQuery.SlabCompletedDate?.ToLocalTime(),
             CategoryOptions = CategoryOptions(),
-            ProductOptions = await ProductOptionsAsync(siteQuery.ProductId),
             ProjectOptions = await ProjectOptionsAsync()
         };
+
+        var (productOptions, productItems) = await LoadProductOptionsAsync(siteQuery.ProductId);
+        model.ProductOptions = productOptions;
+        model.ProductOptionItems = productItems;
 
         return View(model);
     }
@@ -259,7 +268,9 @@ public class SiteQueriesController : Controller
         if (!ModelState.IsValid)
         {
             model.CategoryOptions = CategoryOptions();
-            model.ProductOptions = await ProductOptionsAsync(model.ProductId);
+            var (productOptions, productItems) = await LoadProductOptionsAsync(model.ProductId);
+            model.ProductOptions = productOptions;
+            model.ProductOptionItems = productItems;
             model.ProjectOptions = await ProjectOptionsAsync();
             return View(model);
         }
@@ -312,7 +323,9 @@ public class SiteQueriesController : Controller
         if (!ModelState.IsValid)
         {
             model.CategoryOptions = CategoryOptions();
-            model.ProductOptions = await ProductOptionsAsync(model.ProductId);
+            var (productOptions, productItems) = await LoadProductOptionsAsync(model.ProductId);
+            model.ProductOptions = productOptions;
+            model.ProductOptionItems = productItems;
             model.ProjectOptions = await ProjectOptionsAsync();
             return View(model);
         }
@@ -598,7 +611,8 @@ public class SiteQueriesController : Controller
             .OrderBy(p => p)
             .ToListAsync();
 
-    private async Task<IEnumerable<SelectListItem>> ProductOptionsAsync(int? selectedId = null)
+    private async Task<(IEnumerable<SelectListItem> Options, IReadOnlyList<ProductOptionItem> Items)>
+        LoadProductOptionsAsync(int? selectedId = null)
     {
         var products = await _context.Products
             .AsNoTracking()
@@ -608,23 +622,40 @@ public class SiteQueriesController : Controller
             .ToListAsync();
 
         var groups = new Dictionary<string, SelectListGroup>(StringComparer.Ordinal);
-        return products.Select(p =>
+        var options = new List<SelectListItem>();
+        var items = new List<ProductOptionItem>();
+
+        foreach (var product in products)
         {
-            var family = string.IsNullOrWhiteSpace(p.Family) ? "Other" : p.Family;
+            var family = string.IsNullOrWhiteSpace(product.Family) ? "Other" : product.Family;
             if (!groups.TryGetValue(family, out var group))
             {
                 group = new SelectListGroup { Name = family };
                 groups[family] = group;
             }
 
-            return new SelectListItem
+            var selected = product.Id == selectedId;
+
+            options.Add(new SelectListItem
             {
-                Text = $"{p.ProductCode} - {p.Name}",
-                Value = p.Id.ToString(),
-                Selected = p.Id == selectedId,
+                Text = $"{product.ProductCode} - {product.Name}",
+                Value = product.Id.ToString(),
+                Selected = selected,
                 Group = group
-            };
-        });
+            });
+
+            items.Add(new ProductOptionItem
+            {
+                Id = product.Id,
+                Code = product.ProductCode,
+                Name = product.Name,
+                Family = family,
+                ImagePath = product.ImagePath,
+                Selected = selected
+            });
+        }
+
+        return (options, items);
     }
 
     private static readonly string[] AllowedPhotoExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif" };

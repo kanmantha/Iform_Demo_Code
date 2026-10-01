@@ -13,11 +13,13 @@ public class ProductsController : Controller
 {
     private readonly ApplicationDbContext _context;
     private readonly UserManager<AppUser> _userManager;
+    private readonly IWebHostEnvironment _environment;
 
-    public ProductsController(ApplicationDbContext context, UserManager<AppUser> userManager)
+    public ProductsController(ApplicationDbContext context, UserManager<AppUser> userManager, IWebHostEnvironment environment)
     {
         _context = context;
         _userManager = userManager;
+        _environment = environment;
     }
 
     public async Task<IActionResult> Index(string? search, string? family)
@@ -90,6 +92,17 @@ public class ProductsController : Controller
             CreatedAt = DateTime.UtcNow
         };
 
+        if (model.ImageFile is not null && model.ImageFile.Length > 0)
+        {
+            if (TryGetImageError(model.ImageFile, out var imageError))
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), imageError);
+                return View(model);
+            }
+
+            product.ImagePath = await SaveImageAsync(model.ImageFile);
+        }
+
         _context.Products.Add(product);
         if (user is not null)
         {
@@ -132,6 +145,7 @@ public class ProductsController : Controller
             Dimensions = product.Dimensions,
             Project = product.Project,
             Unit = product.Unit,
+            ImagePath = product.ImagePath,
             IsActive = product.IsActive
         };
 
@@ -172,6 +186,23 @@ public class ProductsController : Controller
         product.Unit = model.Unit?.Trim();
         product.IsActive = model.IsActive;
 
+        if (model.ImageFile is not null && model.ImageFile.Length > 0)
+        {
+            if (TryGetImageError(model.ImageFile, out var imageError))
+            {
+                ModelState.AddModelError(nameof(model.ImageFile), imageError);
+                return View(model);
+            }
+
+            var newImagePath = await SaveImageAsync(model.ImageFile);
+            var oldImagePath = product.ImagePath;
+            product.ImagePath = newImagePath;
+            await _context.SaveChangesAsync();
+            DeleteImageFile(oldImagePath);
+            TempData["Success"] = $"Product {product.ProductCode} updated.";
+            return RedirectToAction(nameof(Index));
+        }
+
         await _context.SaveChangesAsync();
 
         TempData["Success"] = $"Product {product.ProductCode} updated.";
@@ -190,6 +221,7 @@ public class ProductsController : Controller
         }
 
         var user = await _userManager.GetUserAsync(User);
+        var imagePath = product.ImagePath;
         _context.Products.Remove(product);
         if (user is not null)
         {
@@ -206,6 +238,7 @@ public class ProductsController : Controller
         }
 
         await _context.SaveChangesAsync();
+        DeleteImageFile(imagePath);
 
         TempData["Success"] = $"Product {product.ProductCode} removed.";
         return RedirectToAction(nameof(Index));
@@ -219,4 +252,61 @@ public class ProductsController : Controller
             .Distinct()
             .OrderBy(p => p)
             .ToListAsync();
+
+    private static readonly string[] AllowedImageExtensions = { ".jpg", ".jpeg", ".png", ".webp", ".gif" };
+    private const int MaxImageBytes = 5 * 1024 * 1024;
+
+    private static bool TryGetImageError(IFormFile file, out string error)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(extension))
+        {
+            error = $"Unsupported image type \"{extension}\". Allowed: {string.Join(", ", AllowedImageExtensions)}.";
+            return true;
+        }
+
+        if (file.Length > MaxImageBytes)
+        {
+            error = "Image exceeds the 5 MB limit.";
+            return true;
+        }
+
+        error = string.Empty;
+        return false;
+    }
+
+    private async Task<string> SaveImageAsync(IFormFile file)
+    {
+        var extension = Path.GetExtension(file.FileName).ToLowerInvariant();
+        if (!AllowedImageExtensions.Contains(extension))
+        {
+            throw new InvalidOperationException(
+                $"Unsupported image type \"{extension}\". Allowed: {string.Join(", ", AllowedImageExtensions)}.");
+        }
+
+        var folder = Path.Combine(_environment.WebRootPath, "uploads", "products");
+        Directory.CreateDirectory(folder);
+
+        var fileName = $"{Guid.NewGuid():N}{extension}";
+        var fullPath = Path.Combine(folder, fileName);
+
+        await using var stream = new FileStream(fullPath, FileMode.Create);
+        await file.CopyToAsync(stream);
+
+        return $"/uploads/products/{fileName}";
+    }
+
+    private void DeleteImageFile(string? imagePath)
+    {
+        if (string.IsNullOrWhiteSpace(imagePath) || !imagePath.StartsWith("/uploads/products/", StringComparison.OrdinalIgnoreCase))
+        {
+            return;
+        }
+
+        var fullPath = Path.Combine(_environment.WebRootPath, imagePath.TrimStart('/').Replace('/', Path.DirectorySeparatorChar));
+        if (System.IO.File.Exists(fullPath))
+        {
+            System.IO.File.Delete(fullPath);
+        }
+    }
 }

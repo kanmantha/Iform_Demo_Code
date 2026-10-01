@@ -4,6 +4,20 @@ namespace IForm.Web.Data;
 
 public static class AccessoryCatalog
 {
+    private static readonly HashSet<string> CodesWithPhotos = new(StringComparer.OrdinalIgnoreCase)
+    {
+        "DAAA", "DABA", "DACA", "DADA", "DAFA", "DAGB", "DAGC", "DAHA", "DAIB", "DAIC",
+        "DBAA0000", "DCAB0059", "DCBB0150", "DCCC0001", "DCCD0001", "DDAA0003", "DDCA0099",
+        "DDCB0099", "DEAA0740", "DEDA0001", "DFAA", "DFAB1601", "DFAC1610", "DFAC1611",
+        "DFAC1635", "DFAE", "DFAG0200", "DHAA0001", "DIAB0001", "DJBA0001", "DKAA",
+        "DLAA0002", "DPAA0001", "DQAA09001600", "DQAB0700", "DQAE2700", "DRAA0001",
+        "DRAA1710", "DRBA0001", "DRCA0002", "DRDA0001", "DRFA0001", "DRGA0001", "DRMA",
+        "DRNA0004", "DROB0001", "DRWA0001", "DTGA0001", "DTGD", "DUAA0001", "DZAA", "DZAA0004", "DZAA0006"
+    };
+
+    private static string? ImagePathFor(string code)
+        => CodesWithPhotos.Contains(code) ? $"/uploads/products/{code}.jpeg" : null;
+
     private static Product P(string code, string name, string family, string material, string? spec = null)
         => new()
         {
@@ -12,6 +26,7 @@ public static class AccessoryCatalog
             Family = family,
             Material = material,
             Specification = spec,
+            ImagePath = ImagePathFor(code),
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

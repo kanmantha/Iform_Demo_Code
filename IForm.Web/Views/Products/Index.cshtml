@@ -45,6 +45,7 @@
         <table class="table">
             <thead>
                 <tr>
+                    <th></th>
                     <th>Code</th>
                     <th>Name</th>
                     <th>Family</th>
@@ -61,7 +62,7 @@
                 @if (Model.Products.Count == 0)
                 {
                     <tr>
-                        <td colspan="@(User.IsInRole("Admin") || User.IsInRole("Manager") ? 7 : 5)">
+                        <td colspan="@(User.IsInRole("Admin") || User.IsInRole("Manager") ? 8 : 6)">
                             <div class="empty-state">
                                 <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round">
                                     <circle cx="11" cy="11" r="8"></circle><line x1="21" y1="21" x2="16.65" y2="16.65"></line>
@@ -74,6 +75,11 @@
                 @foreach (var product in Model.Products)
                 {
                     <tr>
+                        <td class="product-thumb-cell">
+                            <img class="product-thumb"
+                                 src="@(string.IsNullOrEmpty(product.ImagePath) ? "/images/product-placeholder.svg" : product.ImagePath)"
+                                 alt="@product.ProductCode" />
+                        </td>
                         <td><span class="badge badge-status-progress">@product.ProductCode</span></td>
                         <td class="ticket-title">@product.Name</td>
                         <td class="text-sm">@(product.Family ?? "—")</td>

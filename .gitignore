@@ -12,6 +12,9 @@ obj/
 *.db-shm
 *.db-wal
 
+# User-uploaded content at runtime (photo evidence, product images)
+IForm.Web/wwwroot/uploads/
+
 # IDE
 .vs/
 .vscode/

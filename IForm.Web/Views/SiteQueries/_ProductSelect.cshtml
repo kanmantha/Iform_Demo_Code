@@ -1,0 +1,43 @@
+@model IForm.Web.ViewModels.SiteQueryFormViewModel
+@{
+    const string placeholder = "/images/product-placeholder.svg";
+    var selectedItem = Model.ProductOptionItems.FirstOrDefault(p => p.Selected);
+}
+<div class="product-select" data-product-select>
+    <input type="hidden" asp-for="ProductId" />
+    <button type="button" class="product-select-trigger" aria-haspopup="listbox" aria-expanded="false">
+        <img class="product-select-img"
+             src="@(selectedItem?.ImagePath ?? placeholder)"
+             alt="" />
+        <span class="product-select-label">@(selectedItem?.Text ?? "Not verified")</span>
+        <span class="product-select-caret">
+            <svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <polyline points="6 9 12 15 18 9"></polyline>
+            </svg>
+        </span>
+    </button>
+    <div class="product-select-menu" role="listbox">
+        <div class="product-select-option product-select-option-empty @(selectedItem is null ? "selected" : "")"
+             data-value="" data-label="Not verified" data-image="@placeholder">
+            <img class="product-select-img" src="@placeholder" alt="" />
+            <span class="product-select-option-text"><span class="product-select-name">Not verified</span></span>
+        </div>
+        @foreach (var group in Model.ProductOptionItems.GroupBy(p => p.Family))
+        {
+            <div class="product-select-group">@group.Key</div>
+            @foreach (var product in group)
+            {
+                <div class="product-select-option @(product.Selected ? "selected" : "")"
+                     data-value="@product.Id"
+                     data-label="@product.Text"
+                     data-image="@(product.ImagePath ?? placeholder)">
+                    <img class="product-select-img" src="@(product.ImagePath ?? placeholder)" alt="@product.Code" />
+                    <span class="product-select-option-text">
+                        <span class="product-select-code">@product.Code</span>
+                        <span class="product-select-name">@product.Name</span>
+                    </span>
+                </div>
+            }
+        }
+    </div>
+</div>

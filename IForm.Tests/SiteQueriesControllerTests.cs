@@ -435,4 +435,53 @@ public class SiteQueriesControllerTests
             connection.Dispose();
         }
     }
+
+    [Fact]
+    public async Task Create_Get_PopulatesProductOptionsWithImages()
+    {
+        var (db, connection) = TestData.CreateDbContext();
+        try
+        {
+            var user = TestData.User();
+            await TestData.SeedUsersAsync(db, user);
+
+            db.Products.Add(new Product
+            {
+                ProductCode = "DAAA",
+                Name = "SNAP TIE",
+                Family = "Tie",
+                Material = "Steel",
+                ImagePath = "/uploads/products/daaa.png",
+                IsActive = true
+            });
+            db.Products.Add(new Product
+            {
+                ProductCode = "DABA",
+                Name = "2HOLE TIE",
+                Family = "Tie",
+                Material = "Steel",
+                ImagePath = null,
+                IsActive = true
+            });
+            await db.SaveChangesAsync();
+
+            var controller = new SiteQueriesController(db, TestData.UserManager(user), new TestWebHostEnvironment())
+                .SetUser(TestData.Principal(user));
+
+            var result = await controller.Create();
+
+            var view = Assert.IsType<ViewResult>(result);
+            var model = Assert.IsAssignableFrom<SiteQueryFormViewModel>(view.Model);
+            Assert.Equal(2, model.ProductOptionItems.Count);
+            Assert.Equal("DAAA", model.ProductOptionItems[0].Code);
+            Assert.Equal("/uploads/products/daaa.png", model.ProductOptionItems[0].ImagePath);
+            Assert.Null(model.ProductOptionItems[1].ImagePath);
+            Assert.Equal("DAAA - SNAP TIE", model.ProductOptionItems[0].Text);
+        }
+        finally
+        {
+            await db.DisposeAsync();
+            connection.Dispose();
+        }
+    }
 }

@@ -1,5 +1,6 @@
 using System.ComponentModel.DataAnnotations;
 using IForm.Web.Models;
+using Microsoft.AspNetCore.Http;
 
 namespace IForm.Web.ViewModels;
 
@@ -38,6 +39,11 @@ public class ProductFormViewModel
     public string? Project { get; set; }
 
     public string? Unit { get; set; }
+
+    public string? ImagePath { get; set; }
+
+    [Display(Name = "Product image")]
+    public IFormFile? ImageFile { get; set; }
 
     public bool IsActive { get; set; } = true;
 }

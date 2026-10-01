@@ -39,18 +39,7 @@
                 </div>
                 <div class="form-group">
                     <label asp-for="ProductId">Verified product code</label>
-                    <select asp-for="ProductId" class="form-control">
-                        <option value="">Not verified</option>
-                        @foreach (var group in Model.ProductOptions.GroupBy(o => o.Group?.Name))
-                        {
-                            <optgroup label="@group.Key">
-                                @foreach (var product in group)
-                                {
-                                    <option value="@product.Value" selected="@product.Selected">@product.Text</option>
-                                }
-                            </optgroup>
-                        }
-                    </select>
+                    <partial name="_ProductSelect" model="Model" />
                     <span class="text-muted text-sm">Confirm the exact item first via <a asp-controller="Products" asp-action="Index">Product Lookup</a>.</span>
                 </div>
             </div>
