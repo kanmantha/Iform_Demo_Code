@@ -23,6 +23,16 @@ public class HomeController : Controller
         return View();
     }
 
+    [Authorize]
+    public IActionResult UnderConstruction(string module)
+    {
+        ViewData["ModuleName"] = module;
+        ViewData["Title"] = module ?? "Module";
+        ViewData["PageTitle"] = module ?? "Module";
+        ViewData["PageSubtitle"] = "Site under construction";
+        return View();
+    }
+
     [ResponseCache(Duration = 0, Location = ResponseCacheLocation.None, NoStore = true)]
     public IActionResult Error()
     {

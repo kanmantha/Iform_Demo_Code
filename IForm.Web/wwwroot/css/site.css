@@ -1136,3 +1136,59 @@ a.notification-content:hover strong { color: var(--primary); }
     font-weight: 600;
     font-size: 14px;
 }
+
+/* ---------- Under Construction ---------- */
+.under-construction {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+    padding: 56px 24px;
+}
+
+.uc-icon {
+    width: 84px;
+    height: 84px;
+    border-radius: 50%;
+    background: #fffbeb;
+    color: var(--warning);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 22px;
+}
+
+.uc-icon svg {
+    width: 42px;
+    height: 42px;
+}
+
+.uc-title {
+    font-size: 22px;
+    font-weight: 600;
+    margin: 0 0 6px;
+    color: var(--text);
+}
+
+.uc-status {
+    font-size: 14px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+    color: var(--warning);
+    margin: 0 0 14px;
+}
+
+.uc-text {
+    font-size: 14px;
+    color: var(--text-muted);
+    max-width: 420px;
+    margin: 0 0 26px;
+    line-height: 1.6;
+}
+
+.under-construction .btn svg {
+    width: 16px;
+    height: 16px;
+    margin-right: 6px;
+}
