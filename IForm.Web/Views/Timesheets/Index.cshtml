@@ -1,6 +1,108 @@
+@model TimesheetListViewModel
 @{
     ViewData["Title"] = "Timesheets";
     ViewData["PageTitle"] = "Timesheets";
-    ViewData["ActiveMenu"] = "T-i-m-e-s-h-e-e-t-s.ToLower()";
+    ViewData["ActiveMenu"] = "hr-timesheets";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">Timesheets module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>Timesheets</h1>
+        <p class="text-muted">@Model.TotalCount timesheet(s) on record, @Model.DraftCount draft, @Model.SubmittedCount submitted, @Model.ApprovedCount approved, @Model.RejectedCount rejected.</p>
+    </div>
+    <a asp-controller="Timesheets" asp-action="Create" class="btn btn-primary">Add Timesheet</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="filter-bar">
+        <div>
+            <label for="EmployeeId">Employee</label>
+            <select id="EmployeeId" name="employeeId" class="form-control">
+                <option value="">All employees</option>
+                @foreach (var employee in Model.Employees)
+                {
+                    <option value="@employee.Id" selected="@(Model.EmployeeId == employee.Id)">@employee.FullName</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="ProjectId">Project</label>
+            <select id="ProjectId" name="projectId" class="form-control">
+                <option value="">All projects</option>
+                @foreach (var project in Model.Projects)
+                {
+                    <option value="@project.Id" selected="@(Model.ProjectId == project.Id)">@project.Name</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="Status">Status</label>
+            <select id="Status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<TimesheetStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="FromDate">From</label>
+            <input type="date" id="FromDate" name="fromDate" value="@(Model.FromDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div>
+            <label for="ToDate">To</label>
+            <input type="date" id="ToDate" name="toDate" value="@(Model.ToDate?.ToString("yyyy-MM-dd"))" class="form-control" />
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-outline-primary">Apply</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Timesheets.Count == 0)
+    {
+        <div class="card-body text-muted">No timesheets match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Date</th>
+                        <th>Employee</th>
+                        <th>Project</th>
+                        <th>Hours</th>
+                        <th>Status</th>
+                        <th>Submitted</th>
+                        <th>Approved</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var timesheet in Model.Timesheets)
+                    {
+                        <tr>
+                            <td>@timesheet.Date.ToString("dd MMM yyyy")</td>
+                            <td>@(timesheet.Employee?.FullName ?? "-")</td>
+                            <td>@(timesheet.Project?.Name ?? "-")</td>
+                            <td>@timesheet.Hours</td>
+                            <td><span class="status-chip status-@timesheet.Status.ToString().ToLowerInvariant()">@timesheet.Status</span></td>
+                            <td>@(timesheet.SubmittedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td>@(timesheet.ApprovedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@timesheet.Id" class="btn btn-sm btn-outline">View</a>
+                                <a asp-action="Edit" asp-route-id="@timesheet.Id" class="btn btn-sm btn-outline">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@timesheet.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this timesheet?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

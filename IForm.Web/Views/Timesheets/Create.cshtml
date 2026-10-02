@@ -1,0 +1,13 @@
+@model TimesheetFormViewModel
+@{
+    ViewData["Title"] = "Add Timesheet";
+    ViewData["PageTitle"] = "Add Timesheet";
+    ViewData["ActiveMenu"] = "hr-timesheets";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

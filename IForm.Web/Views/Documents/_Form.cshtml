@@ -1,0 +1,66 @@
+@model DocumentFormViewModel
+@{
+    var formAction = ViewData["FormAction"] as string ?? "Create";
+}
+
+<form asp-action="@formAction" method="post">
+    <div asp-validation-summary="ModelOnly" class="text-danger mb-2"></div>
+    @if (Model.Id > 0)
+    {
+        <input type="hidden" asp-for="Id" />
+    }
+
+    <div class="card mb-2">
+        <div class="card-body">
+            <div class="form-group">
+                <label asp-for="Title"></label>
+                <input asp-for="Title" class="form-control" />
+                <span asp-validation-for="Title" class="text-danger"></span>
+            </div>
+            <div class="form-group">
+                <label asp-for="Description"></label>
+                <textarea asp-for="Description" class="form-control" rows="2"></textarea>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="FilePath">File Path/URL</label>
+                    <input asp-for="FilePath" class="form-control" />
+                    <span asp-validation-for="FilePath" class="text-danger"></span>
+                </div>
+                <div class="form-group">
+                    <label asp-for="FileType"></label>
+                    <input asp-for="FileType" class="form-control" />
+                </div>
+                <div class="form-group">
+                    <label asp-for="FileSize"></label>
+                    <input asp-for="FileSize" type="number" class="form-control" />
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label asp-for="Category"></label>
+                    <select asp-for="Category" asp-items="Html.GetEnumSelectList<DocumentCategory>()" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="Visibility"></label>
+                    <select asp-for="Visibility" asp-items="Html.GetEnumSelectList<DocumentVisibility>()" class="form-control"></select>
+                </div>
+                <div class="form-group">
+                    <label asp-for="EmployeeId">Associated Employee</label>
+                    <select asp-for="EmployeeId" class="form-control">
+                        <option value="">None</option>
+                        @foreach (var employee in Model.Employees)
+                        {
+                            <option value="@employee.Id">@employee.FullName</option>
+                        }
+                    </select>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="form-actions mt-2">
+        <button type="submit" class="btn btn-primary">@(Model.Id > 0 ? "Save changes" : "Create Document")</button>
+        <a class="btn btn-outline" asp-action="Index">Cancel</a>
+    </div>
+</form>

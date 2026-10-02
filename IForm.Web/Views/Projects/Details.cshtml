@@ -1,0 +1,24 @@
+@model Project
+@{
+    ViewData["Title"] = Model.Name;
+    ViewData["PageTitle"] = Model.Name;
+    ViewData["ActiveMenu"] = "hr-projects";
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Projects</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Name</span><strong>@Model.Name</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>Start Date</span><strong>@(Model.StartDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>End Date</span><strong>@(Model.EndDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>Created At</span><strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+            <div><span>Description</span><strong>@(Model.Description ?? "-")</strong></div>
+        </div>
+    </div>
+</div>

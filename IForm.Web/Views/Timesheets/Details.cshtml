@@ -1,0 +1,27 @@
+@model Timesheet
+@{
+    ViewData["Title"] = "Timesheet Details";
+    ViewData["PageTitle"] = "Timesheet Details";
+    ViewData["ActiveMenu"] = "hr-timesheets";
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Timesheets</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Date</span><strong>@Model.Date.ToString("dd MMM yyyy")</strong></div>
+            <div><span>Employee</span><strong>@(Model.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Project</span><strong>@(Model.Project?.Name ?? "-")</strong></div>
+            <div><span>Hours</span><strong>@Model.Hours</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>Submitted At</span><strong>@(Model.SubmittedAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</strong></div>
+            <div><span>Approved At</span><strong>@(Model.ApprovedAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</strong></div>
+            <div><span>Approved By</span><strong>@(Model.ApprovedById ?? "-")</strong></div>
+            <div><span>Notes</span><strong>@(Model.Notes ?? "-")</strong></div>
+        </div>
+    </div>
+</div>

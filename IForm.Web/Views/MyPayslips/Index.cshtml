@@ -1,6 +1,56 @@
+@model MyPayslipListViewModel
 @{
-    ViewData["Title"] = "MyPayslips";
-    ViewData["PageTitle"] = "MyPayslips";
-    ViewData["ActiveMenu"] = "M-y-P-a-y-s-l-i-p-s.ToLower()";
+    ViewData["Title"] = "My Payslips";
+    ViewData["PageTitle"] = "My Payslips";
+    ViewData["ActiveMenu"] = "hr-mypayslips";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">MyPayslips module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>My Payslips</h1>
+        <p class="text-muted">@Model.TotalCount payslip(s) on record.</p>
+    </div>
+</div>
+
+<div class="card">
+    @if (Model.Payslips.Count == 0)
+    {
+        <div class="card-body text-muted">No payslips available.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Period</th>
+                        <th>Basic</th>
+                        <th>Allowances</th>
+                        <th>Deductions</th>
+                        <th>Net Pay</th>
+                        <th>Status</th>
+                        <th>Paid At</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var payslip in Model.Payslips)
+                    {
+                        <tr>
+                            <td>@payslip.Year - @payslip.Month</td>
+                            <td>@payslip.BasicSalary.ToString("C")</td>
+                            <td>@payslip.GrossSalary.ToString("C")</td>
+                            <td>@payslip.Deductions.ToString("C")</td>
+                            <td>@payslip.NetSalary.ToString("C")</td>
+                            <td>@payslip.Status</td>
+                            <td>@(payslip.PaidAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@payslip.Id" class="btn btn-sm btn-outline">View</a>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

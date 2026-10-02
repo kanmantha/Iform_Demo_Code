@@ -1,0 +1,13 @@
+@model ProjectFormViewModel
+@{
+    ViewData["Title"] = "Edit Project";
+    ViewData["PageTitle"] = "Edit Project";
+    ViewData["ActiveMenu"] = "hr-projects";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

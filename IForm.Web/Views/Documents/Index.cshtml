@@ -1,6 +1,90 @@
+@model DocumentListViewModel
 @{
     ViewData["Title"] = "Documents";
     ViewData["PageTitle"] = "Documents";
-    ViewData["ActiveMenu"] = "D-o-c-u-m-e-n-t-s.ToLower()";
+    ViewData["ActiveMenu"] = "hr-documents";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">Documents module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>Documents</h1>
+        <p class="text-muted">@Model.TotalCount document(s) on record.</p>
+    </div>
+    <a asp-controller="Documents" asp-action="Create" class="btn btn-primary">Add Document</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="filter-bar">
+        <div>
+            <label for="Search">Search</label>
+            <input type="text" id="Search" name="search" value="@Model.Search" class="form-control" placeholder="Title or description" />
+        </div>
+        <div>
+            <label for="Category">Category</label>
+            <select id="Category" name="category" class="form-control">
+                <option value="">Any category</option>
+                @foreach (var category in Enum.GetValues<DocumentCategory>())
+                {
+                    <option value="@category" selected="@(Model.Category == category)">@category</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="Visibility">Visibility</label>
+            <select id="Visibility" name="visibility" class="form-control">
+                <option value="">Any visibility</option>
+                @foreach (var visibility in Enum.GetValues<DocumentVisibility>())
+                {
+                    <option value="@visibility" selected="@(Model.Visibility == visibility)">@visibility</option>
+                }
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-outline-primary">Apply</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Documents.Count == 0)
+    {
+        <div class="card-body text-muted">No documents match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Category</th>
+                        <th>Visibility</th>
+                        <th>Employee</th>
+                        <th>Uploaded</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var document in Model.Documents)
+                    {
+                        <tr>
+                            <td><a asp-action="Details" asp-route-id="@document.Id">@document.Title</a></td>
+                            <td>@document.Category</td>
+                            <td>@document.Visibility</td>
+                            <td>@(document.Employee?.FullName ?? "-")</td>
+                            <td>@document.UploadedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@document.Id" class="btn btn-sm btn-outline">View</a>
+                                <a asp-action="Edit" asp-route-id="@document.Id" class="btn btn-sm btn-outline">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@document.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this document?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -6,5 +6,8 @@ namespace IForm.Web.Controllers;
 [Authorize]
 public class SelfServiceController : Controller
 {
-    public IActionResult Index() => View();
+    public IActionResult Index()
+    {
+        return View();
+    }
 }

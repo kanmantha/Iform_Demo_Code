@@ -15,5 +15,7 @@ public class Training
     public int? DurationHours { get; set; }
     public DateTime? StartDate { get; set; }
     public DateTime? EndDate { get; set; }
+    public int? TrainerEmployeeId { get; set; }
+    public Employee? Trainer { get; set; }
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;
 }

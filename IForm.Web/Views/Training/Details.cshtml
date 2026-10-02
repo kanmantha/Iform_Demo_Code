@@ -1,0 +1,26 @@
+@model Training
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["PageTitle"] = Model.Title;
+    ViewData["ActiveMenu"] = "hr-training";
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Training</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Title</span><strong>@Model.Title</strong></div>
+            <div><span>Type</span><strong>@Model.Type</strong></div>
+            <div><span>Status</span><strong>@Model.Status</strong></div>
+            <div><span>Trainer</span><strong>@(Model.Trainer?.FullName ?? "-")</strong></div>
+            <div><span>Start Date</span><strong>@(Model.StartDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>End Date</span><strong>@(Model.EndDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>Created At</span><strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+            <div><span>Description</span><strong>@(Model.Description ?? "-")</strong></div>
+        </div>
+    </div>
+</div>

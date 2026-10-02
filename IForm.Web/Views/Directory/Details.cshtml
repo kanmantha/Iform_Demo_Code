@@ -1,0 +1,23 @@
+@model DirectoryEntry
+@{
+    ViewData["Title"] = "Directory Entry";
+    ViewData["PageTitle"] = "Directory Entry";
+    ViewData["ActiveMenu"] = "hr-directory";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Directory</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Name</span><strong>@(Model.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Email</span><strong>@(Model.Employee?.Email ?? "-")</strong></div>
+            <div><span>Designation</span><strong>@(Model.Employee?.JobTitle ?? "-")</strong></div>
+            <div><span>Department</span><strong>@(Model.Employee?.Department?.Name ?? "-")</strong></div>
+            <div><span>Phone</span><strong>@(Model.Employee?.Phone ?? "-")</strong></div>
+            <div><span>Published</span><strong>@(Model.IsPublished ? "Yes" : "No")</strong></div>
+        </div>
+    </div>
+</div>

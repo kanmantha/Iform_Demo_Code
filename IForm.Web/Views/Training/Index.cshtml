@@ -1,6 +1,92 @@
+@model TrainingListViewModel
 @{
     ViewData["Title"] = "Training";
     ViewData["PageTitle"] = "Training";
-    ViewData["ActiveMenu"] = "T-r-a-i-n-i-n-g.ToLower()";
+    ViewData["ActiveMenu"] = "hr-training";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">Training module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>Training</h1>
+        <p class="text-muted">@Model.TotalCount training(s) on record.</p>
+    </div>
+    <a asp-controller="Training" asp-action="Create" class="btn btn-primary">Add Training</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="filter-bar">
+        <div>
+            <label for="Search">Search</label>
+            <input type="text" id="Search" name="search" value="@Model.Search" class="form-control" placeholder="Title" />
+        </div>
+        <div>
+            <label for="Status">Status</label>
+            <select id="Status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<TrainingStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div>
+            <label for="Type">Type</label>
+            <select id="Type" name="type" class="form-control">
+                <option value="">Any type</option>
+                @foreach (var type in Enum.GetValues<TrainingType>())
+                {
+                    <option value="@type" selected="@(Model.Type == type)">@type</option>
+                }
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-outline-primary">Apply</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Trainings.Count == 0)
+    {
+        <div class="card-body text-muted">No trainings match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Type</th>
+                        <th>Status</th>
+                        <th>Trainer</th>
+                        <th>Start</th>
+                        <th>End</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var training in Model.Trainings)
+                    {
+                        <tr>
+                            <td><a asp-action="Details" asp-route-id="@training.Id">@training.Title</a></td>
+                            <td>@training.Type</td>
+                            <td>@training.Status</td>
+                            <td>@(training.Trainer?.FullName ?? "-")</td>
+                            <td>@(training.StartDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td>@(training.EndDate?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@training.Id" class="btn btn-sm btn-outline">View</a>
+                                <a asp-action="Edit" asp-route-id="@training.Id" class="btn btn-sm btn-outline">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@training.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this training?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

@@ -1,0 +1,25 @@
+@model Payslip
+@{
+    ViewData["Title"] = "Payslip Details";
+    ViewData["PageTitle"] = "Payslip Details";
+    ViewData["ActiveMenu"] = "hr-mypayslips";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to My Payslips</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Employee</span><strong>@(Model.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Period</span><strong>@Model.Year - @Model.Month</strong></div>
+            <div><span>Basic Pay</span><strong>@Model.BasicSalary.ToString("C")</strong></div>
+            <div><span>Allowances/Gross</span><strong>@Model.GrossSalary.ToString("C")</strong></div>
+            <div><span>Deductions</span><strong>@Model.Deductions.ToString("C")</strong></div>
+            <div><span>Net Pay</span><strong>@Model.NetSalary.ToString("C")</strong></div>
+            <div><span>Status</span><strong>@Model.Status</strong></div>
+            <div><span>Paid At</span><strong>@(Model.PaidAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</strong></div>
+        </div>
+    </div>
+</div>

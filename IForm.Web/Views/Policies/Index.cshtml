@@ -1,6 +1,78 @@
+@model PolicyListViewModel
 @{
     ViewData["Title"] = "Policies";
     ViewData["PageTitle"] = "Policies";
-    ViewData["ActiveMenu"] = "P-o-l-i-c-i-e-s.ToLower()";
+    ViewData["ActiveMenu"] = "hr-policies";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">Policies module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>Policies</h1>
+        <p class="text-muted">@Model.TotalCount policy(s) on record, @Model.DraftCount draft, @Model.PublishedCount published, @Model.ArchivedCount archived.</p>
+    </div>
+    <a asp-controller="Policies" asp-action="Create" class="btn btn-primary">Add Policy</a>
+</div>
+
+<form method="get" asp-action="Index" class="card card-body mb-3">
+    <div class="filter-bar">
+        <div>
+            <label for="Search">Search</label>
+            <input type="text" id="Search" name="search" value="@Model.Search" class="form-control" placeholder="Title or description" />
+        </div>
+        <div>
+            <label for="Status">Status</label>
+            <select id="Status" name="status" class="form-control">
+                <option value="">Any status</option>
+                @foreach (var status in Enum.GetValues<PolicyStatus>())
+                {
+                    <option value="@status" selected="@(Model.Status == status)">@status</option>
+                }
+            </select>
+        </div>
+        <div class="filter-actions">
+            <button type="submit" class="btn btn-outline-primary">Apply</button>
+            <a asp-action="Index" class="btn btn-outline-secondary">Reset</a>
+        </div>
+    </div>
+</form>
+
+<div class="card">
+    @if (Model.Policies.Count == 0)
+    {
+        <div class="card-body text-muted">No policies match the current filters.</div>
+    }
+    else
+    {
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th>Title</th>
+                        <th>Status</th>
+                        <th>Published</th>
+                        <th>Created</th>
+                        <th class="text-end">Actions</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var policy in Model.Policies)
+                    {
+                        <tr>
+                            <td><a asp-action="Details" asp-route-id="@policy.Id">@policy.Title</a></td>
+                            <td><span class="status-chip status-@policy.Status.ToString().ToLowerInvariant()">@policy.Status</span></td>
+                            <td>@(policy.PublishedAt?.ToString("dd MMM yyyy") ?? "-")</td>
+                            <td>@policy.CreatedAt.ToString("dd MMM yyyy")</td>
+                            <td class="text-end">
+                                <a asp-action="Details" asp-route-id="@policy.Id" class="btn btn-sm btn-outline">View</a>
+                                <a asp-action="Edit" asp-route-id="@policy.Id" class="btn btn-sm btn-outline">Edit</a>
+                                <form asp-action="Delete" asp-route-id="@policy.Id" method="post" class="d-inline">
+                                    <button type="submit" class="btn btn-sm btn-outline-danger" onclick="return confirm('Delete this policy?')">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+    }
+</div>

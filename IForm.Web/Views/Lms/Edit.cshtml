@@ -1,0 +1,13 @@
+@model LmsFormViewModel
+@{
+    ViewData["Title"] = "Edit Course";
+    ViewData["PageTitle"] = "Edit Course";
+    ViewData["ActiveMenu"] = "hr-lms";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

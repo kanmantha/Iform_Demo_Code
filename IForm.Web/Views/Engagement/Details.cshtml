@@ -1,0 +1,27 @@
+@model EngagementSurvey
+@{
+    ViewData["Title"] = "Survey Details";
+    ViewData["PageTitle"] = "Survey Details";
+    ViewData["ActiveMenu"] = "hr-engagement";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Surveys</a>
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Title</span><strong>@Model.Title</strong></div>
+            <div><span>Status</span><strong>@Model.Status</strong></div>
+            <div><span>Start Date</span><strong>@Model.StartDate.ToString("dd MMM yyyy")</strong></div>
+            <div><span>End Date</span><strong>@(Model.EndDate?.ToString("dd MMM yyyy") ?? "-")</strong></div>
+            <div><span>Created At</span><strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+            @if (!string.IsNullOrEmpty(Model.Description))
+            {
+                <div class="full-width"><span>Description</span><p>@Model.Description</p></div>
+            }
+        </div>
+    </div>
+</div>

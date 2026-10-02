@@ -1,6 +1,62 @@
+@model DirectoryListViewModel
 @{
     ViewData["Title"] = "Directory";
-    ViewData["PageTitle"] = "Directory";
-    ViewData["ActiveMenu"] = "D-i-r-e-c-t-o-r-y.ToLower()";
+    ViewData["PageTitle"] = "Employee Directory";
+    ViewData["ActiveMenu"] = "hr-directory";
 }
-<div class="card"><div class="card-body"><p class="text-muted mb-0">Directory module coming soon.</p></div></div>
+
+<div class="page-header">
+    <div>
+        <h1>Directory</h1>
+        <p class="text-muted">@Model.TotalCount entry(ies) on record.</p>
+    </div>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form method="get" class="row g-3 mb-4">
+            <div class="col-md-4">
+                <label class="form-label">Search</label>
+                <input asp-for="Search" class="form-control" placeholder="Search by name, email, designation" />
+            </div>
+            <div class="col-md-2 d-flex align-items-end">
+                <button class="btn btn-outline w-100">Filter</button>
+            </div>
+        </form>
+
+        @if (Model.Entries.Count == 0)
+        {
+            <p class="text-muted mb-0">No directory entries found.</p>
+        }
+        else
+        {
+            <div class="table-responsive">
+                <table class="table table-hover align-middle mb-0">
+                    <thead>
+                        <tr>
+                            <th>Name</th>
+                            <th>Email</th>
+                            <th>Designation</th>
+                            <th>Department</th>
+                            <th class="text-end">Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var e in Model.Entries)
+                        {
+                            <tr>
+                                <td>@(e.Employee?.FullName ?? "-")</td>
+                                <td>@(e.Employee?.Email ?? "-")</td>
+                                <td>@(e.Employee?.JobTitle ?? "-")</td>
+                                <td>@(e.Employee?.Department?.Name ?? "-")</td>
+                                <td class="text-end">
+                                    <a asp-action="Details" asp-route-id="@e.Id" class="btn btn-sm btn-outline">View</a>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+        }
+    </div>
+</div>

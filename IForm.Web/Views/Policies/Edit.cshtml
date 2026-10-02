@@ -1,0 +1,13 @@
+@model PolicyFormViewModel
+@{
+    ViewData["Title"] = "Edit Policy";
+    ViewData["PageTitle"] = "Edit Policy";
+    ViewData["ActiveMenu"] = "hr-policies";
+    ViewData["FormAction"] = "Edit";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

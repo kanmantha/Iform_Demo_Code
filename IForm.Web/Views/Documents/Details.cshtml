@@ -1,0 +1,28 @@
+@model Document
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["PageTitle"] = Model.Title;
+    ViewData["ActiveMenu"] = "hr-documents";
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Documents</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Title</span><strong>@Model.Title</strong></div>
+            <div><span>Category</span><strong>@Model.Category</strong></div>
+            <div><span>Visibility</span><strong>@Model.Visibility</strong></div>
+            <div><span>File Path</span><strong>@Model.FilePath</strong></div>
+            <div><span>File Type</span><strong>@(Model.FileType ?? "-")</strong></div>
+            <div><span>File Size</span><strong>@Model.FileSize bytes</strong></div>
+            <div><span>Employee</span><strong>@(Model.Employee?.FullName ?? "-")</strong></div>
+            <div><span>Uploaded By</span><strong>@(Model.UploadedById ?? "-")</strong></div>
+            <div><span>Uploaded At</span><strong>@Model.UploadedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+            <div><span>Description</span><strong>@(Model.Description ?? "-")</strong></div>
+        </div>
+    </div>
+</div>

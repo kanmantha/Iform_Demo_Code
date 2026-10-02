@@ -1,0 +1,25 @@
+@model EngagementFormViewModel
+@{
+    ViewData["Title"] = "Create Survey";
+    ViewData["PageTitle"] = "Create Engagement Survey";
+    ViewData["ActiveMenu"] = "hr-engagement";
+}
+
+<div class="page-actions">
+    <a asp-action="Index" class="btn btn-outline">Back to Surveys</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <form asp-action="Create" method="post">
+            @Html.AntiForgeryToken()
+            <partial name="_Form" model="Model" />
+            <button type="submit" class="btn btn-primary">Create</button>
+            <a asp-action="Index" class="btn btn-outline">Cancel</a>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

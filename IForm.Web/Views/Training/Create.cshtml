@@ -1,0 +1,13 @@
+@model TrainingFormViewModel
+@{
+    ViewData["Title"] = "Add Training";
+    ViewData["PageTitle"] = "Add Training";
+    ViewData["ActiveMenu"] = "hr-training";
+    ViewData["FormAction"] = "Create";
+}
+
+<partial name="_Form" model="Model" />
+
+@section Scripts {
+    <partial name="_ValidationScriptsPartial" />
+}

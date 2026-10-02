@@ -1,0 +1,25 @@
+@model Policy
+@{
+    ViewData["Title"] = Model.Title;
+    ViewData["PageTitle"] = Model.Title;
+    ViewData["ActiveMenu"] = "hr-policies";
+}
+
+<div class="page-actions">
+    <a asp-action="Edit" asp-route-id="@Model.Id" class="btn btn-primary">Edit</a>
+    <a asp-action="Index" class="btn btn-outline">Back to Policies</a>
+</div>
+
+<div class="card">
+    <div class="card-body">
+        <div class="detail-grid">
+            <div><span>Title</span><strong>@Model.Title</strong></div>
+            <div><span>Status</span><strong><span class="status-chip status-@Model.Status.ToString().ToLowerInvariant()">@Model.Status</span></strong></div>
+            <div><span>File Path</span><strong>@(Model.FilePath ?? "-")</strong></div>
+            <div><span>Published At</span><strong>@(Model.PublishedAt?.ToString("dd MMM yyyy HH:mm") ?? "-")</strong></div>
+            <div><span>Published By</span><strong>@(Model.PublishedById ?? "-")</strong></div>
+            <div><span>Created At</span><strong>@Model.CreatedAt.ToString("dd MMM yyyy HH:mm")</strong></div>
+            <div><span>Description</span><strong>@(Model.Description ?? "-")</strong></div>
+        </div>
+    </div>
+</div>
