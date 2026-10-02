@@ -61,6 +61,52 @@ public class ApplicationDbContext : IdentityDbContext<AppUser>
 
     public DbSet<EmployeeOnboardingTask> EmployeeOnboardingTasks => Set<EmployeeOnboardingTask>();
 
+
+    public DbSet<PerformanceReview> PerformanceReviews => Set<PerformanceReview>();
+
+
+    public DbSet<Payslip> Payslips => Set<Payslip>();
+
+
+    public DbSet<EngagementSurvey> EngagementSurveys => Set<EngagementSurvey>();
+
+
+    public DbSet<EngagementResponse> EngagementResponses => Set<EngagementResponse>();
+
+
+    public DbSet<Training> Trainings => Set<Training>();
+
+
+    public DbSet<TrainingEnrollment> TrainingEnrollments => Set<TrainingEnrollment>();
+
+
+    public DbSet<LmsCourse> LmsCourses => Set<LmsCourse>();
+
+
+    public DbSet<LmsEnrollment> LmsEnrollments => Set<LmsEnrollment>();
+
+
+    public DbSet<Project> Projects => Set<Project>();
+
+
+    public DbSet<ProjectAssignment> ProjectAssignments => Set<ProjectAssignment>();
+
+
+    public DbSet<Timesheet> Timesheets => Set<Timesheet>();
+
+
+    public DbSet<Document> Documents => Set<Document>();
+
+
+    public DbSet<Policy> Policies => Set<Policy>();
+
+
+    public DbSet<DirectoryEntry> DirectoryEntries => Set<DirectoryEntry>();
+
+
+
+
+
     protected override void OnModelCreating(ModelBuilder builder)
     {
         base.OnModelCreating(builder);

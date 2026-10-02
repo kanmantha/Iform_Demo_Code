@@ -16,7 +16,7 @@ public static class SiteQueryPdfService
     {
         using var stream = new MemoryStream();
 
-        Document.Create(container =>
+        QuestPDF.Fluent.Document.Create(container =>
         {
             container.Page(page =>
             {
