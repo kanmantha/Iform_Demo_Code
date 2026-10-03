@@ -1089,7 +1089,6 @@ public static class DbSeeder
                 EntityType = "SiteQuery",
                 EntityId = query.QueryNumber,
                 Details = $"Query {query.QueryNumber} raised for {project} (IPO {ipo})",
-                CreatedAt = createdAt
             });
         }
     }
