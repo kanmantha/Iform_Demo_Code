@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -131,7 +131,67 @@
                     </a>
                 }
 
-                <div class="nav-section-label">Site Queries</div>
+                <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-performance" ? "active" : "")"
+                       asp-controller="Performance" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"></polyline><polyline points="17 6 23 6 23 12"></polyline></svg>
+                        <span>Performance Reviews</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-mypayslips" ? "active" : "")"
+                       asp-controller="MyPayslips" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <span>My Payslips</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-engagement" ? "active" : "")"
+                       asp-controller="Engagement" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M8 14s1.5 2 4 2 4-2 4-2"></path><circle cx="9" cy="9" r="1"></circle><circle cx="15" cy="9" r="1"></circle></svg>
+                        <span>Engagement Surveys</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-training" ? "active" : "")"
+                       asp-controller="Training" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 014 4v14a3 3 0 00-3-3H2z"></path><path d="M22 3h-6a4 4 0 00-4 4v14a3 3 0 013-3h7z"></path></svg>
+                        <span>Training</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-lms" ? "active" : "")"
+                       asp-controller="Lms" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"></path><path d="M16.5 3.5a2.121 2.121 0 013 3L7 19l-4 1 1-4L16.5 3.5z"></path></svg>
+                        <span>LMS</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-selfservice" ? "active" : "")"
+                       asp-controller="SelfService" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span>Self-Service</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-projects" ? "active" : "")"
+                       asp-controller="Projects" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="7" height="7" rx="1"></rect><rect x="14" y="3" width="7" height="7" rx="1"></rect><rect x="3" y="14" width="7" height="7" rx="1"></rect><rect x="14" y="14" width="7" height="7" rx="1"></rect></svg>
+                        <span>Projects</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-timesheets" ? "active" : "")"
+                       asp-controller="Timesheets" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"></circle><polyline points="12 6 12 12 16 14"></polyline></svg>
+                        <span>Timesheets</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-documents" ? "active" : "")"
+                       asp-controller="Documents" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 00-2 2v16a2 2 0 002 2h12a2 2 0 002-2V8z"></path><polyline points="14 2 14 8 20 8"></polyline></svg>
+                        <span>Documents</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-policies" ? "active" : "")"
+                       asp-controller="Policies" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"></path></svg>
+                        <span>Policies</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-myprofile" ? "active" : "")"
+                       asp-controller="MyAccount" asp-action="Profile">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M20 21v-2a4 4 0 00-4-4H8a4 4 0 00-4 4v2"></path><circle cx="12" cy="7" r="4"></circle></svg>
+                        <span>My Profile</span>
+                    </a>
+                    <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "hr-directory" ? "active" : "")"
+                       asp-controller="Directory" asp-action="Index">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 00-4-4H5a4 4 0 00-4 4v2"></path><circle cx="9" cy="7" r="4"></circle><path d="M23 21v-2a4 4 0 00-3-3.87"></path><path d="M16 3.13a4 4 0 010 7.75"></path></svg>
+                        <span>Directory</span>
+                    </a>
+                    <div class="nav-section-label">Site Queries</div>
                 <a class="nav-link @(ViewData["ActiveMenu"]?.ToString() == "sitequeries" ? "active" : "")"
                    asp-controller="SiteQueries" asp-action="Index">
                     <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
